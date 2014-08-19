@@ -3,27 +3,28 @@
     [
       ["apps", "communications", "dialer"],
       ["apps", "sms"],
-      ["apps", "communications", "contacts"],
-      ["apps", "browser"],
+      ["apps", "email"],
+      ["apps", "browser"]
+    ], [
+      ["apps", "settings"],
+      ["apps", "camera"],
+      ["apps", "gallery"],
+      ["apps", "clock"]
+    ], [
       ["apps", "marketplace.firefox.com"],
-      ["apps", "camera"]
+      ["apps", "music"],
+      ["apps", "communications", "contacts"],
+      ["apps", "video"],
+      ["apps", "fm"],
+      ["apps", "calendar"],
+      ["apps", "costcontrol"]
     ], [
       ["apps/collection/collections", "social"],
       ["apps/collection/collections", "games"],
       ["apps/collection/collections", "music"]
-    ], [
-      ["apps", "gallery"],
-      ["apps", "music"],
-      ["apps", "video"],
-      ["apps", "fm"],
-      ["apps", "settings"],
-      ["apps", "clock"],
-      ["apps", "email"],
-      ["apps", "calendar"],
-      ["apps", "costcontrol"]
     ]
   ],
   "preferences": {
-    "grid.cols": 3
+    "grid.cols": 4
   }
 }

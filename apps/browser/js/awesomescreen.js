@@ -385,7 +385,7 @@ var Awesomescreen = {
                 for (var i=0, l=suggestions.length; i<l; i++) {
                   var suggestion = suggestions[i];
                   results.push({
-                    frecency: 1000 + i,
+                    frecency: -1000 + i,
                     iconUri: Browser.searchEngine.iconUri || "http://www.google.com/favicon.ico",
                     title: suggestion,
                     screenshot: Browser.searchEngine.iconUri || null,

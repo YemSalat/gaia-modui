@@ -19,7 +19,7 @@
    "audio.volume.bt_sco": 15,
    "audio.volume.dtmf": 15,
    "audio.volume.content": 15,
-   "audio.volume.master": 5,
+   "audio.volume.master": 10,
    "audio.volume.notification": 15,
    "audio.volume.tts": 15,
    "audio.volume.telephony": 5,
