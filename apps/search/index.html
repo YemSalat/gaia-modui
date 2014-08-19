@@ -55,12 +55,21 @@
     <script defer src="js/providers/suggestions.js"></script>
     <script defer src="js/providers/webresults.js"></script>
 
+    <!-- Include the app icon in the application.zip -->
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_84.png"/>
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_126.png"/>
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_142.png"/>
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_189.png"/>
+    <link rel="resource" type="image/png" href="shared/resources/branding/browser_284.png"/>
   </head>
   <body>
 
     <div id="search-results" class="hidden">
 
-      <div id="offline-message"></div>
+      <div id="offline-message">
+        <span id="settings-connectivity"></span>
+        <span data-l10n-id="offline-message">No Internet Connection</span>
+      </div>
 
       <div id="suggestions-wrapper">
         <section id="suggestions"

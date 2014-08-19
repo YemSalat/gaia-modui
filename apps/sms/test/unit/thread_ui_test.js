@@ -420,6 +420,43 @@ suite('thread_ui.js >', function() {
         contactList.textContent, '', 'Recipient suggestions should be cleared'
       );
     });
+
+    test('always scroll to top when toggleing suggestions list', function() {
+      var contactList = recipientSuggestions.querySelector('.contact-list');
+      contactList.textContent = '';
+
+      recipientSuggestions.classList.add('hide');
+      recipientSuggestions.style.maxHeight = '300px';
+      recipientSuggestions.style.overflowY = 'auto';
+
+      var documentFragment = document.createDocumentFragment();
+      var suggestionNode;
+
+      for (var i = 0; i < 10; i++) {
+        suggestionNode = document.createElement('li');
+        suggestionNode.innerHTML =
+          '<a class="suggestion">' +
+            '<p class="name">Jean Dupont</p>' +
+            '<p class="number">0123456789</p>' +
+          '</a>';
+        documentFragment.appendChild(suggestionNode);
+      }
+
+      ThreadUI.toggleRecipientSuggestions(documentFragment);
+      recipientSuggestions.scrollTop = 200;
+
+      assert.equal(
+        recipientSuggestions.scrollTop, 200,
+        'Recipient suggestions should be scrolled down'
+      );
+
+      ThreadUI.toggleRecipientSuggestions(documentFragment);
+
+      assert.equal(
+        recipientSuggestions.scrollTop, 0,
+        'Recipient suggestions should be scrolled to top'
+      );
+    });
   });
 
   suite('segmentInfo management >', function() {
@@ -2227,13 +2264,13 @@ suite('thread_ui.js >', function() {
         deliveryInfo: [],
         attachments: []
       });
-      assert.ok(ThreadUI.tmpl.message.interpolate.calledWith({
+      sinon.assert.calledWithMatch(ThreadUI.tmpl.message.interpolate, {
         id: '1',
         bodyHTML: '',
         timestamp: '' + now,
         subject: 'subject',
         progressIndicatorClassName: ''
-      }));
+      });
     });
 
     test('correctly sets the iccId in the dataset', function() {
@@ -2241,9 +2278,48 @@ suite('thread_ui.js >', function() {
 
       node = ThreadUI.buildMessageDOM(MockMessages.sms({ iccId: 'A' }));
       assert.equal(node.dataset.iccId, 'A');
+      assert.isNull(
+        node.querySelector('.message-sim-information'),
+        'The SIM information is not displayed'
+      );
 
       node = ThreadUI.buildMessageDOM(MockMessages.mms({ iccId: 'A' }));
       assert.equal(node.dataset.iccId, 'A');
+      assert.isNull(
+        node.querySelector('.message-sim-information'),
+        'The SIM information is not displayed'
+      );
+    });
+
+    test('correctly shows the SIM information when present', function() {
+      var tests = ['A', 'B'];
+      this.sinon.stub(Settings, 'getServiceIdByIccId');
+
+      tests.forEach((iccId, serviceId) => {
+        Settings.getServiceIdByIccId.withArgs(iccId).returns(serviceId);
+      });
+
+      this.sinon.stub(Settings, 'hasSeveralSim').returns(false);
+
+      // testing with serviceId both equal to 0 and not 0, to check we handle
+      // correctly falsy correct values
+      tests.forEach((iccId, serviceId) => {
+        var node = ThreadUI.buildMessageDOM(MockMessages.mms({ iccId: iccId }));
+        assert.isNull(
+          node.querySelector('.message-sim-information'),
+          'The SIM information is not displayed'
+        );
+      });
+
+      Settings.hasSeveralSim.returns(true);
+
+      tests.forEach((iccId, serviceId) => {
+        var node = ThreadUI.buildMessageDOM(MockMessages.mms({ iccId: iccId }));
+        var simInformationNode = node.querySelector('.message-sim-information');
+        assert.ok(simInformationNode, 'The SIM information is displayed');
+        var simInformation = JSON.parse(simInformationNode.dataset.l10nArgs);
+        assert.equal(simInformation.id, serviceId + 1);
+      });
     });
 
     test('correctly sets progress indicator class name', function() {

@@ -141,6 +141,9 @@ function MessageListCard(domNode, mode, args) {
     batchAddClass(domNode, 'msg-search-only', 'collapsed');
   } else {
     batchAddClass(domNode, 'msg-nonsearch-only', 'collapsed');
+    // Favor the use of the card background color for the status bar instead of
+    // the default color.
+    this.domNode.dataset.statuscolor = 'background';
   }
 
   this.messagesContainer =
@@ -784,9 +787,7 @@ MessageListCard.prototype = {
         // onRefresh pretty clever, so it can do all the legwork on
         // accomplishing this goal.
         Toaster.toast({
-          text: mozL10n.get('toaster-retryable-syncfailed'),
-          actionLabel: mozL10n.get('toaster-retry'),
-          action: this.onRefresh.bind(this)
+          text: mozL10n.get('toaster-retryable-syncfailed')
         });
       }
       this.toolbar.refreshBtn.dataset.state = 'synchronized';

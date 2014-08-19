@@ -20,6 +20,10 @@
   background-color: transparent;
 }
 
+.appWindow:not(.homescreen):not(.searchWindow).light {
+  background-color: #fff;
+}
+
 /* mozbrowser iframe layout */
 
 .appWindow iframe {
@@ -389,7 +393,7 @@
 }
 
 .appWindow > .authentication-dialog {
-  z-index: 4;
+  z-index: 100;
 }
 
 .appWindow.slideleft {

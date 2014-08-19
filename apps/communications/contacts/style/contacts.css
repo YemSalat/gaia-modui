@@ -297,25 +297,21 @@ form p textarea + button[type="reset"].hide {
   display: block;
 }
 
-/* MARK AS REMOVED */
+/* MARK AS Facebook */
 
-.removed {
+.facebook {
   border-color: #c8c8c8;
   opacity: 0.85;
 }
 
-.removed fieldset, .removed legend, .removed input {
+.facebook fieldset, .facebook legend, .facebook input {
   background-color: transparent;
   color: #ccc;
   pointer-events: none;
 }
 
-.removed legend.action:after {
+.facebook legend.action:after {
   border-top-color: #666;
-}
-
-.removed button span.icon-delete {
-  background-image: url("/contacts/style/gphx/bitmap/default/forms/undo.png");
 }
 
 .with-photo {
@@ -601,7 +597,7 @@ section[role="region"] > header .icon.icon-settings {
   color: #606060;
   font-size: 2rem;
   font-weight: 300;
-  margin: 15rem 2rem 0;
+  margin: 16rem 2rem 0;
   padding: 1rem;
 }
 
@@ -611,18 +607,6 @@ section[role="region"] > header .icon.icon-settings {
 
 #no-contacts p.small {
   font-size: 1.6rem;
-}
-#no-contacts .icon {
-  padding-left: 3.5rem;
-}
-
-#no-contacts .create.icon {
-  background: url("/contacts/style/images/plus_small_ico.png") no-repeat 0 50% / 1.4rem;
-  margin-top: 3rem;
-}
-
-#no-contacts .import.icon {
-  background: url("/contacts/style/images/settings_small_ico.png") no-repeat 0 50% / 1.6rem;
 }
 
 #statusMsg {
@@ -724,15 +708,4 @@ form[role="dialog"][data-type="edit"].contacts-select:not(.insearchmode) > menu 
 
 form[role="dialog"][data-type="edit"].contacts-select:not(.insearchmode) header {
   transform: translateY(0);
-}
-
-
-html[dir="rtl"] #no-contacts .icon {
-  padding-right: 3.5rem;
-  padding-left: 0;
-}
-
-html[dir="rtl"] #no-contacts .create.icon,
-html[dir="rtl"] #no-contacts .import.icon {
-  background-position: 100% 50%;
 }
