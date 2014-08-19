@@ -5,7 +5,8 @@
 'use strict';
 var suggestionManager = {
   SUGGESTION_API_URL: 'http://www.google.com/complete/search?client=firefox&q=',
-  SUGGESTION_DELAY: 700,
+  SUGGESTION_DELAY: 1000,
+  SUGGESTION_AMOUNT: 5,
   storage: {}, // cached suggestion results
 
   // save suggestions to cache
@@ -14,7 +15,7 @@ var suggestionManager = {
     },
 
   // get suggestions
-  getSuggestions: (function(filter, callback) {
+  getSuggestions: function(filter, callback) {
     if(suggestionManager.storage.hasOwnProperty(filter)) {
       callback.apply(null, [ suggestionManager.storage[filter] ]);
     }
@@ -25,7 +26,7 @@ var suggestionManager = {
       xhr.open("GET", page, true);
       xhr.onreadystatechange = function(data) {
         if(xhr.readyState==4 && xhr.status==200) {
-          var suggestions = JSON.parse(data.target.responseText)[1].slice(0, 4);
+          var suggestions = JSON.parse(data.target.responseText)[1].slice(0, suggestionManager.SUGGESTION_AMOUNT);
 
           suggestionManager.cacheSuggestions(filter, suggestions);
           callback.apply(null, [ suggestions ]);
@@ -33,7 +34,7 @@ var suggestionManager = {
       }
       xhr.send();
     }
-  }).bind(this)
+  }
 
 };
 
@@ -363,48 +364,54 @@ var Awesomescreen = {
         var self = this;
         var results = results;
 
-        window.clearTimeout(this.updateTimeout);
+        // SUGGESTION REQUEST
+        // cancell the previous async suggestion request
+        window.clearTimeout(Awesomescreen.updateTimeout);
 
-        if(results.length === 0) {
-          this.updateTimeout = window.setTimeout((function() {
-            var suggestionBaseUri = Browser.searchEngine.uri ||
-                                    'http://www.google.com/search?q={searchTerms}';
-            suggestionManager.getSuggestions(filter, function(suggestions) {
-              for(var i=0, l=suggestions.length; i<l; i++) {
-                var suggestion = suggestions[i];
-                results.push({
-                  frecency: 1000 + i,
-                  iconUri: Browser.searchEngine.iconUri || "http://www.google.com/favicon.ico",
-                  title: suggestion,
-                  screenshot: Browser.searchEngine.iconUri || null,
-                  uri: suggestionBaseUri.replace('{searchTerms}', encodeURIComponent(suggestion))
-                });
-      
-              }
-
-              self.populateResults(results, filter);
-              self.updateInProgress = false;
-
-              var pendingUpdateFilter = self.pendingUpdateFilter;
-
-              if (pendingUpdateFilter !== null) {
-                self.pendingUpdateFilter = null;
-                self.update(pendingUpdateFilter);
-              }
-            });
-          }).bind(this), suggestionManager.SUGGESTION_DELAY);
-        }
-        else {
+        new Promise(function(resolve, reject) {
+          // if there are results in top sites - return them
+          if (results.length > 0) {
+            resolve(results);
+          }
+          // if there are no top sites matching request -
+          // make a suggestion request
+          else {
+            self.updateInProgress = false;
+            Awesomescreen.updateTimeout = window.setTimeout(function() {
+              var suggestionBaseUri = Browser.searchEngine.uri;
+              // get suggestions from suggestionManager
+              suggestionManager.getSuggestions(filter, function(suggestions) {
+                // convert to gaia topsite-result format
+                for (var i=0, l=suggestions.length; i<l; i++) {
+                  var suggestion = suggestions[i];
+                  results.push({
+                    frecency: 1000 + i,
+                    iconUri: Browser.searchEngine.iconUri || "http://www.google.com/favicon.ico",
+                    title: suggestion,
+                    screenshot: Browser.searchEngine.iconUri || null,
+                    uri: suggestionBaseUri.replace('{searchTerms}', encodeURIComponent(suggestion))
+                  });        
+                }
+                // return suggestions
+                resolve(results);
+              });
+            }, suggestionManager.SUGGESTION_DELAY);  
+          }
+        }).then(function(results) {
           self.populateResults(results, filter);
           self.updateInProgress = false;
-
+          
           var pendingUpdateFilter = self.pendingUpdateFilter;
 
           if (pendingUpdateFilter !== null) {
             self.pendingUpdateFilter = null;
             self.update(pendingUpdateFilter);
           }
-        }
+          // cancell the previous async suggestion request
+          window.clearTimeout(Awesomescreen.updateTimeout);
+        });
+          
+        
       }).bind(this));
   },
 

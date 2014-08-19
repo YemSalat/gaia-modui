@@ -25,13 +25,18 @@
   width: 100%;
 }
 
+
+/*.appWindow div.title {
+  visibility: hidden !important;
+}*/
+
 .appWindow .titlebar .titlebar-minimized {
   /* TODO - Bug 1042105. Add here the minified statusbar id */
   background-image: -moz-element(#statusbar);
 
   /* TODO - Bug 1042105. Add here the minified size of the statusbar */
-  width: 50%;
-  margin-left: 50%;
+  width: 100%;
+  margin-left: 0;
   background-size: cover;
 }
 

@@ -627,7 +627,7 @@ var Browser = {
     var scrollDiff = this.lastScrollOffset - evt.detail.top;
     if ((scrollDiff < -this.DIFF_SCROLL_TRESHOLD) && (evt.detail.top > this.UPPER_SCROLL_THRESHOLD)) {
       this.hideAddressBar();
-    } else if ((scrollDiff > this.DIFF_SCROLL_TRESHOLD) && (evt.detail.top < this.LOWER_SCROLL_THRESHOLD)) {
+    } else if (scrollDiff > this.DIFF_SCROLL_TRESHOLD) {
       this.showAddressBar();
     }
 
