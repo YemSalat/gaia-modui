@@ -14,6 +14,12 @@
     ],
     "searchEngines": [
       {
+        "title": "DuckDuckGo",
+        "uri": "https://duckduckgo.com/?q={searchTerms}",
+        "iconUri":
+          "data:image/png;base64,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"
+      },
+      {
         "title": "Google",
         "uri": "http://www.google.com/search?q={searchTerms}",
         "iconUri":
@@ -33,7 +39,7 @@
       }
     ],
     "settings": {
-      "defaultSearchEngine": "http://www.google.com/search?q={searchTerms}"
+      "defaultSearchEngine": "https://duckduckgo.com/?q={searchTerms}"
     }
   }
 }

@@ -52,7 +52,7 @@ input[type="image"] {
   width: 100%;
   height: 100%;
   z-index: 150;
-  transition: 0.5s ease-in-out;
+  transition: 0.5s ease;
   transform: translateY(100%);
   overflow-y: scroll;
 }
@@ -68,7 +68,7 @@ input[type="image"] {
 
 #tray {
   font-size: 1.7rem;
-  -moz-transition: 0.2s ease-in-out;
+  -moz-transition: 0.2s ease;
   position: absolute;
   left: 5rem;
   right: 0;
@@ -185,7 +185,7 @@ input[type="image"] {
    * underlying problem.
    */
   transform: translateY(0);
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.2s ease;
 }
 
 #main-screen.address-hidden {

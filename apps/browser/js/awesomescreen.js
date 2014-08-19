@@ -3,12 +3,47 @@
 /* exported Awesomescreen */
 
 'use strict';
+var suggestionManager = {
+  SUGGESTION_API_URL: 'http://www.google.com/complete/search?client=firefox&q=',
+  SUGGESTION_DELAY: 700,
+  storage: {}, // cached suggestion results
+
+  // save suggestions to cache
+  cacheSuggestions: function(filter, suggestions) {
+    this.storage[filter] = suggestions.slice(); // create a copy in cache
+    },
+
+  // get suggestions
+  getSuggestions: (function(filter, callback) {
+    if(suggestionManager.storage.hasOwnProperty(filter)) {
+      callback.apply(null, [ suggestionManager.storage[filter] ]);
+    }
+    else {
+      var xhr = new XMLHttpRequest({ mozSystem: true });
+      var page = suggestionManager.SUGGESTION_API_URL + filter;
+
+      xhr.open("GET", page, true);
+      xhr.onreadystatechange = function(data) {
+        if(xhr.readyState==4 && xhr.status==200) {
+          var suggestions = JSON.parse(data.target.responseText)[1].slice(0, 4);
+
+          suggestionManager.cacheSuggestions(filter, suggestions);
+          callback.apply(null, [ suggestions ]);
+        }
+      }
+      xhr.send();
+    }
+  }).bind(this)
+
+};
+
 
 /**
  * Browser App Awesomescreen. Display top sites, bookmarks, histories and search
  * result.
  * @namespace Awesomescreen
  */
+
 var Awesomescreen = {
 
   DEFAULT_FAVICON: 'style/images/favicon.png',
@@ -307,6 +342,7 @@ var Awesomescreen = {
    *
    * @param {string} filter String to filter results by.
    */
+  updateTimeout: -1,
   update: function awesomescreen_update(filter) {
     // If an update is already in progress enqueue the following ones
     if (this.updateInProgress) {
@@ -324,14 +360,50 @@ var Awesomescreen = {
     }
     BrowserDB.getTopSites(this.TOP_SITES_COUNT, filter,
       (function gotTopSites(results, filter) {
-        this.populateResults(results, filter);
-        this.updateInProgress = false;
+        var self = this;
+        var results = results;
 
-        var pendingUpdateFilter = this.pendingUpdateFilter;
+        window.clearTimeout(this.updateTimeout);
 
-        if (pendingUpdateFilter !== null) {
-          this.pendingUpdateFilter = null;
-          this.update(pendingUpdateFilter);
+        if(results.length === 0) {
+          this.updateTimeout = window.setTimeout((function() {
+            var suggestionBaseUri = Browser.searchEngine.uri ||
+                                    'http://www.google.com/search?q={searchTerms}';
+            suggestionManager.getSuggestions(filter, function(suggestions) {
+              for(var i=0, l=suggestions.length; i<l; i++) {
+                var suggestion = suggestions[i];
+                results.push({
+                  frecency: 1000 + i,
+                  iconUri: Browser.searchEngine.iconUri || "http://www.google.com/favicon.ico",
+                  title: suggestion,
+                  screenshot: Browser.searchEngine.iconUri || null,
+                  uri: suggestionBaseUri.replace('{searchTerms}', encodeURIComponent(suggestion))
+                });
+      
+              }
+
+              self.populateResults(results, filter);
+              self.updateInProgress = false;
+
+              var pendingUpdateFilter = self.pendingUpdateFilter;
+
+              if (pendingUpdateFilter !== null) {
+                self.pendingUpdateFilter = null;
+                self.update(pendingUpdateFilter);
+              }
+            });
+          }).bind(this), suggestionManager.SUGGESTION_DELAY);
+        }
+        else {
+          self.populateResults(results, filter);
+          self.updateInProgress = false;
+
+          var pendingUpdateFilter = self.pendingUpdateFilter;
+
+          if (pendingUpdateFilter !== null) {
+            self.pendingUpdateFilter = null;
+            self.update(pendingUpdateFilter);
+          }
         }
       }).bind(this));
   },
@@ -344,6 +416,7 @@ var Awesomescreen = {
    */
   populateResults: function awesomescreen_populateResults(results, filter) {
     var list = this.listTemplate.cloneNode(true);
+    
     results.forEach(function(data) {
       list.appendChild(this.createListItem(data, filter, 'results'));
     }, this);

@@ -21,6 +21,8 @@ var _ = navigator.mozL10n.get;
 /**
  * @namespace Browser
  */
+/*! jQuery v1.11.1 | (c) 2005, 2014 jQuery Foundation, Inc. | jquery.org/license */
+
 var Browser = {
 
   currentTab: null,
@@ -63,6 +65,7 @@ var Browser = {
   DEVICE_RATIO: window.devicePixelRatio,
   UPPER_SCROLL_THRESHOLD: 50, // hide address bar
   LOWER_SCROLL_THRESHOLD: 5, // show address bar
+  DIFF_SCROLL_TRESHOLD: 25, // toggle address bar (for auto hiding/showing)
   /** Max number of top sites to display. */
   MAX_TOP_SITES: 4,
 
@@ -91,6 +94,7 @@ var Browser = {
    */
   init: function browser_init() {
     this.getAllElements();
+
     // Add event listeners
     this.urlBar.addEventListener('submit', this.handleUrlFormSubmit.bind(this));
     this.urlInput.addEventListener('focus', this.urlFocus.bind(this));
@@ -620,13 +624,14 @@ var Browser = {
    * Show or hide the address bar according to scroll top.
    */
   handleScroll: function browser_handleScroll(evt) {
-    this.lastScrollOffset = evt.detail.top;
-
-    if (evt.detail.top < this.LOWER_SCROLL_THRESHOLD) {
-      this.showAddressBar();
-    } else if (evt.detail.top > this.UPPER_SCROLL_THRESHOLD) {
+    var scrollDiff = this.lastScrollOffset - evt.detail.top;
+    if ((scrollDiff < -this.DIFF_SCROLL_TRESHOLD) && (evt.detail.top > this.UPPER_SCROLL_THRESHOLD)) {
       this.hideAddressBar();
+    } else if ((scrollDiff > this.DIFF_SCROLL_TRESHOLD) && (evt.detail.top < this.LOWER_SCROLL_THRESHOLD)) {
+      this.showAddressBar();
     }
+
+    this.lastScrollOffset = evt.detail.top;
   },
 
   /**
