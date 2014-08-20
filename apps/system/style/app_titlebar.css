@@ -11,7 +11,7 @@
 .appWindow .titlebar .statusbar-shadow {
   height: 100%;
 
-  background-size: 100% 100%;
+  background-size: auto 100%;
   background-repeat: no-repeat;
   background-position: bottom right;
 }
@@ -21,7 +21,7 @@
 }
 
 .appWindow .titlebar .titlebar-maximized {
-  background-image: -moz-element(#statusbar-maximized);
+  background-image: -moz-element(#statusbar);
   width: 100%;
 }
 
