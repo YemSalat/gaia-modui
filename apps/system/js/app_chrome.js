@@ -3,6 +3,8 @@
 /* global BookmarksDatabase */
 /* global applications */
 /* global SettingsListener */
+/* global LazyLoader */
+/* global IconsHelper */
 
 'use strict';
 
@@ -78,67 +80,66 @@
   AppChrome.prototype._DEBUG = false;
 
   AppChrome.prototype.combinedView = function an_combinedView() {
-    return '<div class="chrome" id="' +
-            this.CLASS_NAME + this.instanceID + '">' +
-            '<div class="progress"></div>' +
-            '<div class="controls">' +
-            ' <button type="button" class="back-button"' +
-            '   alt="Back" disabled></button>' +
-            ' <button type="button" class="forward-button"' +
-            '   alt="Forward" disabled></button>' +
-            ' <div class="urlbar">' +
-            '   <div class="title" data-ssl=""></div>' +
-            '   <button type="button" class="reload-button"' +
-            '     alt="Reload"></button>' +
-            '   <button type="button" class="stop-button"' +
-            '     alt="Stop"></button>' +
-            ' </div>' +
-            ' <button type="button" class="menu-button"' +
-            '   alt="Menu"></button>' +
-            '</div>';
+    var className = this.CLASS_NAME + this.instanceID;
+
+    return `<div class="chrome" id="${className}">
+            <div class="progress"></div>
+            <div class="controls">
+             <button type="button" class="back-button" disabled></button>
+             <button type="button" class="forward-button" disabled></button>
+             <div class="urlbar">
+               <div class="title" data-ssl=""></div>
+               <button type="button" class="reload-button"></button>
+               <button type="button" class="stop-button"></button>
+             </div>
+             <button type="button" class="menu-button"
+               alt="Menu"></button>
+            </div>`;
   };
 
   AppChrome.prototype.view = function an_view() {
-    return '<div class="chrome" id="' +
-            this.CLASS_NAME + this.instanceID + '">' +
-            '<div class="progress"></div>' +
-            '<section role="region" class="bar skin-organic">' +
-              '<header>' +
-                '<button class="kill popup-close">' +
-                '<span class="icon icon-close"></span></button>' +
-                '<h1 class="title"></h1>' +
-              '</header>' +
-            '</section>' +
-          '</div>';
+    var className = this.CLASS_NAME + this.instanceID;
+
+    return `<div class="chrome" id="${className}">
+            <div class="progress"></div>
+            <section role="region" class="bar skin-organic">
+              <header>
+                <button class="kill popup-close">
+                <span class="icon icon-close"></span></button>
+                <h1 class="title"></h1>
+              </header>
+            </section>
+          </div>`;
   };
 
   AppChrome.prototype.overflowMenuView = function an_overflowMenuView() {
-    return '<div class="overflow-menu hidden">' +
-           '  <div class="list">' +
+    var template = `<div class="overflow-menu hidden">
+             <div class="list">
 
-           '    <div class="option" id="new-window">' +
-           '      <div class="icon"></div>' +
-           '      <div class="label" data-l10n-id="new-window">' +
-           '        New Window' +
-           '      </div>' +
-           '    </div>' +
+               <div class="option" id="new-window">
+                 <div class="icon"></div>
+                 <div class="label" data-l10n-id="new-window">
+                   New Window
+                 </div>
+               </div>
 
-           '    <div class="option" id="add-to-home" data-disabled="true">' +
-           '      <div class="icon"></div>' +
-           '      <div class="label" data-l10n-id="add-to-home-screen">' +
-           '        Add to Home Screen' +
-           '      </div>' +
-           '    </div>' +
+               <div class="option" id="add-to-home" data-disabled="true">
+                 <div class="icon"></div>
+                 <div class="label" data-l10n-id="add-to-home-screen">
+                   Add to Home Screen
+                 </div>
+               </div>
 
-           '    <div class="option" id="share">' +
-           '      <div class="icon"></div>' +
-           '      <div class="label" data-l10n-id="share">' +
-           '        Share' +
-           '      </div>' +
-           '    </div>' +
+               <div class="option" id="share">
+                 <div class="icon"></div>
+                 <div class="label" data-l10n-id="share">
+                   Share
+                 </div>
+               </div>
 
-           '  </div>' +
-           '</div>';
+             </div>
+           </div>`;
+      return template;
   };
 
   AppChrome.prototype._fetchElements = function ac__fetchElements() {
@@ -562,6 +563,7 @@
 
   AppChrome.prototype.addBookmark = function ac_addBookmark() {
     var dataset = this.app.config;
+    var favicons = this.app.favicons;
 
     var name;
     if (this.isSearch()) {
@@ -571,23 +573,25 @@
     }
     var url = this._currentURL;
 
-    var activity = new MozActivity({
-      name: 'save-bookmark',
-      data: {
-        type: 'url',
-        url: url,
-        name: name,
-        icon: dataset.icon,
-        useAsyncPanZoom: dataset.useAsyncPanZoom,
-        iconable: false
-      }
-    });
+    LazyLoader.load('shared/js/icons_helper.js', (function() {
+      var activity = new MozActivity({
+        name: 'save-bookmark',
+        data: {
+          type: 'url',
+          url: url,
+          name: name,
+          icon: IconsHelper.getBestIcon(favicons),
+          useAsyncPanZoom: dataset.useAsyncPanZoom,
+          iconable: false
+        }
+      });
 
-    if (this.addToHomeButton) {
-      activity.onsuccess = function onsuccess() {
-        this.addToHomeButton.dataset.disabled = true;
-      }.bind(this);
-    }
+      if (this.addToHomeButton) {
+        activity.onsuccess = function onsuccess() {
+          this.addToHomeButton.dataset.disabled = true;
+        }.bind(this);
+      }
+    }).bind(this));
   };
 
   AppChrome.prototype.onAddBookmark = function ac_onAddBookmark() {
