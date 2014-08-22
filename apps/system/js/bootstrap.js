@@ -12,7 +12,7 @@
          SoftwareButtonManager, Accessibility, NfcUtils, ShrinkingUI,
          TextSelectionDialog, InternetSharing, SleepMenu, AppUsageMetrics,
          LockScreenNotifications, LockScreenPasscodeValidator, NfcManager,
-         ExternalStorageMonitor */
+         ExternalStorageMonitor, LockScreenNotificationBuilder*/
 'use strict';
 
 
@@ -137,6 +137,7 @@ window.addEventListener('load', function startup() {
   window.lockScreenNotifications = new LockScreenNotifications();
   window.lockScreenPasscodeValidator = new LockScreenPasscodeValidator();
   window.lockScreenPasscodeValidator.start();
+  window.lockScreenNotificationBuilder = new LockScreenNotificationBuilder();
   window.layoutManager = new LayoutManager();
   window.layoutManager.start();
   window.nfcUtils = new NfcUtils();
@@ -194,6 +195,7 @@ window.storage = new Storage();
 // Define the default background to use for all homescreens
 window.addEventListener('wallpaperchange', function(evt) {
   document.getElementById('screen').style.backgroundImage =
+    'linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),' +
     'url(' + evt.detail.url + ')';
 });
 

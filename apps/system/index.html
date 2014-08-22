@@ -186,11 +186,13 @@
 
     <!-- LockScreen -->
     <link rel="stylesheet" type="text/css" href="style/lockscreen/lockscreen.css">
+    <link rel="stylesheet" type="text/css" href="style/lockscreen/notifications.css">
     <script defer src="/shared/js/lockscreen_slide.js"></script>
     <script defer src="/shared/js/lockscreen_connection_info_manager.js"></script>
     <script defer src="js/lockscreen.js"></script>
     <script defer src="js/lockscreen_notifications.js"></script>
     <script defer src="js/lockscreen_passcode_validator.js"></script>
+    <script defer src="js/lockscreen_notification_builder.js"></script>
 
     <!-- Airplane Mode -->
     <script defer src="js/airplane_mode.js"></script>
@@ -436,7 +438,6 @@
         <div id="carrier-logo"></div>
       </div>
       <!-- Statusbar -->
-      <div id="statusbar-background" data-z-index-level="statusbar"></div>
       <div id="statusbar" data-z-index-level="statusbar">
         <!-- Rocketbar-->
         <div id="rocketbar">
@@ -948,7 +949,7 @@
           <h1 data-l10n-id="downloadUpdatesViaDataConnection">
             Download updates via data connection?
           </h1>
-          <p data-l10n-id="downloadUpdatesViaDataConnectionMessage">
+          <p data-l10n-id="downloadUpdatesViaDataConnectionMessage2">
             Updates are downloaded via data connection when Wi-Fi is not available. When using data connection, phone calls may be blocked and additional charges may also apply.
           </p>
         </section>
