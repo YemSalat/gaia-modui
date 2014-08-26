@@ -231,7 +231,7 @@ var icc_worker = {
     // Check if device is idle or settings
     var activeApp = AppWindowManager.getActiveApp();
     var settingsOrigin = window.location.origin.replace('system', 'settings');
-    if (!options.isHighPriority && !activeApp.isHomescreen &&
+    if (!options.isHighPriority && activeApp && !activeApp.isHomescreen &&
         activeApp.origin !== settingsOrigin) {
       DUMP('Do not display the text because normal priority.');
       icc.responseSTKCommand(message, {
@@ -458,10 +458,12 @@ var icc_worker = {
     switch (options.timerAction) {
       case icc._iccManager.STK_TIMER_START:
         a_timer.start(options.timerId, options.timerValue * 1000,
-          function() {
-            DUMP('Timer expiration - ' + options.timerId);
+          function(realUsedTimeMs) {
+            DUMP('Timer expiration - ' + options.timerId +
+              ' - real used time ' + realUsedTimeMs);
             (icc.getIcc(message.iccId)).sendStkTimerExpiration({
-              'timerId': options.timerId
+              'timerId': options.timerId,
+              'timerValue': realUsedTimeMs / 1000
             });
           });
         icc.responseSTKCommand(message, {
