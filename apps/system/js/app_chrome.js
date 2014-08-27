@@ -12,12 +12,14 @@
   var _id = 0;
   var _ = navigator.mozL10n.get;
 
-  var newTabApp = null;
+  var newTabManifestURL = null;
   SettingsListener.observe('rocketbar.newTabAppURL', '',
     function(url) {
-      var manifestURL = url ? url.match(/(^.*?:\/\/.*?\/)/)[1] +
+      // The application list in applications.js is not yet ready, so we store
+      // only the manifestURL for now and we look up the application whenever
+      // we trigger a new window.
+      newTabManifestURL = url ? url.match(/(^.*?:\/\/.*?\/)/)[1] +
         'manifest.webapp' : '';
-      newTabApp = applications.getByManifestURL(manifestURL);
     });
 
   /**
@@ -40,18 +42,22 @@
       this.setThemeColor(this.app.themeColor);
     }
 
-    if (!this.app.isBrowser() && this.app.name) {
+    var chrome = this.app.config.chrome;
+    if (!this.app.isBrowser() && chrome && !chrome.scrollable) {
+      this._fixedTitle = true;
+      this.title.dataset.l10nId = 'search-the-web';
+    } else if (!this.app.isBrowser() && this.app.name) {
       this._gotName = true;
       this.setFreshTitle(this.app.name);
     }
 
-    var chrome = this.app.config.chrome;
     if (!chrome) {
       return;
     }
 
     if (this.isSearchApp()) {
       this.app.element.classList.add('search-app');
+      this.title.textContent = _('search-or-enter-address');
     }
 
     if (chrome.bar) {
@@ -102,12 +108,10 @@
 
     return `<div class="chrome" id="${className}">
             <div class="progress"></div>
-            <section role="region" class="bar skin-organic">
-              <header>
-                <button class="kill popup-close">
-                <span class="icon icon-close"></span></button>
+            <section role="region" class="bar">
+              <gaia-header action="close">
                 <h1 class="title"></h1>
-              </header>
+              </gaia-header>
             </section>
           </div>`;
   };
@@ -155,14 +159,7 @@
 
     this.bar = this.element.querySelector('.bar');
     if (this.bar) {
-      this.killButton = this.element.querySelector('.kill');
-
-      // We're appending new elements to DOM so to make sure headers are
-      // properly resized and centered, we emmit a lazyload event.
-      // This will be removed when the gaia-header web component lands.
-      window.dispatchEvent(new CustomEvent('lazyload', {
-        detail: this.bar
-      }));
+      this.header = this.element.querySelector('gaia-header');
     }
   };
 
@@ -174,6 +171,10 @@
 
       case 'click':
         this.handleClickEvent(evt);
+        break;
+
+      case 'action':
+        this.handleActionEvent(evt);
         break;
 
       case 'scroll':
@@ -244,10 +245,6 @@
         this.app.forward();
         break;
 
-      case this.killButton:
-        this.app.kill();
-        break;
-
       case this.title:
         window.dispatchEvent(new CustomEvent('global-search-request'));
         break;
@@ -277,6 +274,12 @@
     }
   };
 
+  AppChrome.prototype.handleActionEvent = function ac_handleActionEvent(evt) {
+    if (evt.detail.type === 'close') {
+      this.app.kill();
+    }
+  };
+
   AppChrome.prototype.handleScrollEvent = function ac_handleScrollEvent(evt) {
     // Ideally we'd animate based on scroll position, but until we have
     // the necessary spec and implementation, we'll animate completely to
@@ -302,7 +305,7 @@
       this.scrollable.addEventListener('scroll', this);
       this.menuButton.addEventListener('click', this);
     } else {
-      this.killButton.addEventListener('click', this);
+      this.header.addEventListener('action', this);
     }
 
     this.app.element.addEventListener('mozbrowserloadstart', this);
@@ -345,7 +348,7 @@
         this.shareButton.removeEventListener('click', this);
       }
     } else {
-      this.killButton.removeEventListener('click', this);
+      this.header.removeEventListener('action', this);
     }
 
     if (!this.app) {
@@ -371,6 +374,9 @@
     };
 
   AppChrome.prototype.setFreshTitle = function ac_setFreshTitle(title) {
+    if (this.isSearchApp()) {
+      return;
+    }
     this.title.textContent = title;
     clearTimeout(this._titleTimeout);
     this._recentTitle = true;
@@ -384,7 +390,7 @@
   };
 
   AppChrome.prototype.handleTitleChanged = function(evt) {
-    if (this._gotName) {
+    if (this._gotName || this._fixedTitle) {
       return;
     }
 
@@ -457,7 +463,8 @@
 
   AppChrome.prototype._updateLocation =
     function ac_updateTitle(title) {
-      if (this._titleChanged || this._gotName || this._recentTitle) {
+      if (this._titleChanged || this._gotName || this._recentTitle ||
+          this._fixedTitle) {
         return;
       }
       this.title.textContent = title;
@@ -624,9 +631,8 @@
   };
 
   AppChrome.prototype.onNewWindow = function ac_onNewWindow() {
-    if (newTabApp) {
-      newTabApp.launch();
-    }
+    var newTabApp = applications.getByManifestURL(newTabManifestURL);
+    newTabApp.launch();
 
     this.hideOverflowMenu();
   };

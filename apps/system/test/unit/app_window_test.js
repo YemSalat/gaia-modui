@@ -1765,6 +1765,7 @@ suite('system/AppWindow', function() {
     var app2 = new AppWindow(fakeAppConfig4);
     assert.isFalse(app1.isBrowser());
     assert.isTrue(app2.isBrowser());
+    assert.isTrue(app2.element.classList.contains('browser'));
   });
 
   test('isCertified', function() {
