@@ -37,7 +37,8 @@ var UtilityTray = {
     window.addEventListener('screenchange', this);
     window.addEventListener('emergencyalert', this);
     window.addEventListener('home', this);
-    window.addEventListener('attentionscreenshow', this);
+    window.addEventListener('attentionopened', this);
+    window.addEventListener('attentionwill-become-active', this);
     window.addEventListener('launchapp', this);
     window.addEventListener('displayapp', this);
     window.addEventListener('appopening', this);
@@ -49,6 +50,7 @@ var UtilityTray = {
     // Firing when the keyboard and the IME switcher shows/hides.
     window.addEventListener('keyboardimeswitchershow', this);
     window.addEventListener('keyboardimeswitcherhide', this);
+    window.addEventListener('imemenushow', this);
 
     window.addEventListener('simpinshow', this);
 
@@ -63,6 +65,9 @@ var UtilityTray = {
     this.grippy.addEventListener('wheel', this);
 
     this.overlay.addEventListener('transitionend', this);
+
+    window.addEventListener('software-button-enabled', this);
+    window.addEventListener('software-button-disabled', this);
 
     if (window.navigator.mozMobileConnections) {
       window.LazyLoader.load('js/cost_control.js');
@@ -82,13 +87,16 @@ var UtilityTray = {
     var detail = evt.detail;
 
     switch (evt.type) {
+      case 'attentionopened':
+      case 'attentionwill-become-active':
       case 'home':
         if (this.shown) {
           this.hide();
-          evt.stopImmediatePropagation();
+          if (evt.type == 'home') {
+            evt.stopImmediatePropagation();
+          }
         }
         break;
-      case 'attentionscreenshow':
       case 'emergencyalert':
       case 'displayapp':
       case 'keyboardchanged':
@@ -115,6 +123,10 @@ var UtilityTray = {
         if (!isBlockedApp && this.shown) {
           this.hide();
         }
+        break;
+
+      case 'imemenushow':
+        this.hide();
         break;
 
       // When IME switcher shows, prevent the keyboard's focus getting changed.
@@ -198,7 +210,6 @@ var UtilityTray = {
         break;
 
       case 'resize':
-        console.log('Window resized');
         this.validateCachedSizes(true);
         break;
 
@@ -210,6 +221,11 @@ var UtilityTray = {
         if (eventType === 'edge-swipe-down') {
           this[this.shown ? 'hide' : 'show']();
         }
+        break;
+
+      case 'software-button-enabled':
+      case 'software-button-disabled':
+        this.validateCachedSizes(true);
         break;
     }
   },

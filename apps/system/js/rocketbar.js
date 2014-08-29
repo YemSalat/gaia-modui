@@ -166,9 +166,9 @@
       window.addEventListener('launchactivity', this, true);
       window.addEventListener('searchterminated', this);
       window.addEventListener('permissiondialoghide', this);
-      window.addEventListener('attentionscreenshow', this);
-      window.addEventListener('status-inactive', this);
       window.addEventListener('global-search-request', this);
+      window.addEventListener('attentionopening', this);
+      window.addEventListener('attentionopened', this);
 
       // Listen for events from Rocketbar
       this.input.addEventListener('focus', this);
@@ -191,11 +191,11 @@
      */
     handleEvent: function(e) {
       switch(e.type) {
+        case 'attentionopening':
+        case 'attentionopened':
         case 'apploading':
         case 'appforeground':
         case 'appopened':
-        case 'attentionscreenshow':
-        case 'status-inactive':
           this.hideResults();
           this.deactivate();
           break;
@@ -244,24 +244,27 @@
           // XXX: fix the WindowManager coupling
           // but currently the transition sequence is crucial for performance
           var app = AppWindowManager.getActiveApp();
-          if (app && !app.manifestURL) {
-            this.setInput(app.config.url);
-          } else {
-            this.setInput('');
+
+          // If the app is not a browser, retain the search value and activate.
+          if (app && !app.isBrowser()) {
+            this.activate(this.focus.bind(this));
+            return;
           }
 
-          var self = this;
-          var focusAndSelect = function() {
-            self.hideResults();
-            setTimeout(function() {
-              self.focus();
-              self.selectAll();
+          // Set the input to be the URL in the case of a browser.
+          this.setInput(app.config.url);
+
+          var focusAndSelect = () => {
+            this.hideResults();
+            setTimeout(() => {
+              this.focus();
+              this.selectAll();
             });
           };
 
           if (app && app.appChrome && !app.appChrome.isMaximized()) {
-            app.appChrome.maximize(function() {
-              self.activate(focusAndSelect);
+            app.appChrome.maximize(() => {
+              this.activate(focusAndSelect);
             });
           } else {
             this.activate(focusAndSelect);

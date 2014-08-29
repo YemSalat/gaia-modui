@@ -33,11 +33,11 @@ System.prototype = {
   },
 
   get appTitlebar() {
-    return this.client.findElement(System.Selector.appTitlebar);
+    return this.client.helper.waitForElement(System.Selector.appTitlebar);
   },
 
   get appUrlbar() {
-    return this.client.findElement(System.Selector.appUrlbar);
+    return this.client.helper.waitForElement(System.Selector.appUrlbar);
   },
 
   get appChromeContextLink() {
@@ -91,6 +91,13 @@ System.prototype = {
 
   getAppIframe: function(url) {
     return this.client.findElement('iframe[src*="' + url + '"]');
+  },
+
+  gotoBrowser: function(url) {
+    var frame = this.client.helper.waitForElement(
+      'div[transition-state="opened"] iframe[src="' + url + '"]');
+    this.client.switchToFrame(frame);
+    this.client.helper.waitForElement('body');
   },
 
   getHomescreenIframe: function() {

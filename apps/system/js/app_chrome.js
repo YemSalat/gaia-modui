@@ -5,6 +5,7 @@
 /* global SettingsListener */
 /* global LazyLoader */
 /* global IconsHelper */
+/* global System */
 
 'use strict';
 
@@ -89,7 +90,7 @@
     var className = this.CLASS_NAME + this.instanceID;
 
     return `<div class="chrome" id="${className}">
-            <div class="progress"></div>
+            <gaia-progress></gaia-progress>
             <div class="controls">
              <button type="button" class="back-button" disabled></button>
              <button type="button" class="forward-button" disabled></button>
@@ -107,7 +108,7 @@
     var className = this.CLASS_NAME + this.instanceID;
 
     return `<div class="chrome" id="${className}">
-            <div class="progress"></div>
+            <gaia-progress></gaia-progress>
             <section role="region" class="bar">
               <gaia-header action="close">
                 <h1 class="title"></h1>
@@ -149,7 +150,7 @@
   AppChrome.prototype._fetchElements = function ac__fetchElements() {
     this.element = this.containerElement.querySelector('.chrome');
 
-    this.progress = this.element.querySelector('.progress');
+    this.progress = this.element.querySelector('gaia-progress');
     this.reloadButton = this.element.querySelector('.reload-button');
     this.forwardButton = this.element.querySelector('.forward-button');
     this.stopButton = this.element.querySelector('.stop-button');
@@ -246,6 +247,9 @@
         break;
 
       case this.title:
+        if (System && System.locked) {
+          return;
+        }
         window.dispatchEvent(new CustomEvent('global-search-request'));
         break;
 
