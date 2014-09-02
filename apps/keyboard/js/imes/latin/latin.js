@@ -53,7 +53,7 @@
     dismissSuggestions: dismissSuggestions,
     setLayoutParams: setLayoutParams,
     setLanguage: setLanguage,
-    handleEvent: handleEvent
+    selectionChange: selectionChange
   };
 
   // This is the object that is passed to init().
@@ -83,7 +83,7 @@
   var autoCorrection;     // Correction to make if next input is space
   var revertTo;           // Revert to this on backspace after autocorrect
   var revertFrom;         // Revert away from this on backspace
-  var disableOnRevert;    // Do we disable auto correction when reverting?
+  var justAutoCorrected;  // Was last change an auto correction?
   var correctionDisabled; // Temporarily diabled after reverting?
 
   // Terminate the worker when the keyboard is inactive for this long.
@@ -129,12 +129,6 @@
    * or the key would be sent with a wrong state.
    */
   var inputSequencePromise = Promise.resolve();
-
-  // Flag to stop updating suggestions for selectionchange when we're going
-  // to do some actions that will cause selectionchange, such as sendKey()
-  // or replaceSurroundingText().
-  var pendingSelectionChange = 0;
-  var inputContext = null;
 
   // keyboard.js calls this to pass us the interface object we need
   // to communicate with it
@@ -198,16 +192,11 @@
     suggesting = (options.suggest && inputMode !== 'verbatim');
     correcting = (options.correct && inputMode !== 'verbatim');
 
-    if (state.inputContext) {
-      inputContext = state.inputContext;
-      inputContext.addEventListener('selectionchange', this);
-    }
-
     // Reset our state
     lastSpaceTimestamp = 0;
     autoCorrection = null;
     revertTo = revertFrom = '';
-    disableOnRevert = false;
+    justAutoCorrected = false;
     correctionDisabled = false;
 
     // The keyboard isn't idle anymore, so clear the timer
@@ -231,10 +220,6 @@
   }
 
   function deactivate() {
-    if (inputContext) {
-      inputContext.removeEventListener('selectionchange', this);
-    }
-
     if (!worker || idleTimer)
       return;
     idleTimer = setTimeout(terminateWorker, WORKER_TIMEOUT);
@@ -363,8 +348,6 @@
     // Wait for the previous keys have been resolved and then handle the next
     // key.
 
-    pendingSelectionChange++;
-
     var nextKeyPromise = inputSequencePromise.then(function() {
       keyCode = keyboard.isCapitalized() && upperKeyCode ? upperKeyCode :
                                                            keyCode;
@@ -373,7 +356,7 @@
       // previous changes that we would otherwise revert.
       if (keyCode !== BACKSPACE) {
         revertTo = revertFrom = '';
-        disableOnRevert = false;
+        justAutoCorrected = false;
       }
 
       var handler;
@@ -426,11 +409,9 @@
       }
 
       lastSpaceTimestamp = (keyCode === SPACE) ? Date.now() : 0;
-      pendingSelectionChange--;
     }, function() {
       // the previous sendKey or replaceSurroundingText has been rejected,
       // No need to update the state.
-      pendingSelectionChange--;
     });
 
     // Need to return the promise, so that the caller could know
@@ -515,12 +496,12 @@
       return replaceBeforeCursor(revertFrom, revertTo).then(function() {
         // If the change we just reverted was an auto-correction then
         // temporarily disable auto correction until the next space
-        if (disableOnRevert) {
+        if (justAutoCorrected) {
           correctionDisabled = true;
         }
 
         revertFrom = revertTo = '';
-        disableOnRevert = false;
+        justAutoCorrected = false;
       });
     }
     else {
@@ -563,10 +544,11 @@
       // user types backspace
       revertTo = currentWord;
       revertFrom = newWord;
-      disableOnRevert = true;
+      justAutoCorrected = true;
     }).then(function() {
-      // Send the keycode as separate key event because it may get canceled
+      // Send the keycode as seperate key event because it may get canceled
       return handleKey(keycode).then(function() {
+        revertTo += String.fromCharCode(keycode);
         revertFrom += String.fromCharCode(keycode);
       });
     });
@@ -619,7 +601,7 @@
           // Remember this change so we can revert it on backspace
           revertTo = ' ' + String.fromCharCode(revertToKeycode || keycode);
           revertFrom = newtext;
-          disableOnRevert = false;
+          justAutoCorrected = false;
         });
     }
   }
@@ -710,26 +692,27 @@
   function select(word, data) {
     var oldWord = wordBeforeCursor();
 
-    // Replace the current word with the selected suggestion.
-    // We used to also insert a space here for convenience but that
-    // made it hard to type compound words.
-    var newWord = data;
+    // Replace the current word with the selected suggestion plus space
+    var newWord = data += ' ';
 
-    pendingSelectionChange++;
     return replaceBeforeCursor(oldWord, newWord).then(function() {
       // Remember the change we just made so we can revert it if the
-      // next key is a backspace. If the word is reverted we disable
-      // autocorrection for this word.
+      // next key is a backspace. Note that it is not an autocorrection
+      // so we don't need to disable corrections.
       revertFrom = newWord;
       revertTo = oldWord;
-      disableOnRevert = true;
+      justAutoCorrected = false;
+
+      // We inserted a space after the selected word, so we're beginning
+      // a new word here, which means that if auto-correction was disabled
+      // we can re-enable it now.
+      correctionDisabled = false;
 
       // Clear the suggestions
       keyboard.sendCandidates([]);
 
       // And update the keyboard capitalization state, if necessary
       updateCapitalization();
-      pendingSelectionChange--;
     });
   }
 
@@ -742,7 +725,7 @@
     lastSpaceTimestamp = 0;
     autoCorrection = null;
     revertTo = revertFrom = '';
-    disableOnRevert = false;
+    justAutoCorrected = false;
     correctionDisabled = false;
   }
 
@@ -1011,30 +994,24 @@
     return c === '.' || c === '?' || c === '!';
   }
 
-  function handleEvent(evt) {
-    var type = evt.type;
-    switch (type) {
-      case 'selectionchange':
-      // We would get selectionchange event when the user type each char,
-      // or accept a word suggestion, so don't update suggestions in these
-      // cases.
-      if (cursor === evt.target.selectionStart ||
-          pendingSelectionChange > 0) {
-        return;
-      }
-
-      //XXX: Don't update inputText here, since textBeforeCursor would only
-      // contain 100 chars at most.
-      cursor = evt.target.selectionStart;
-      if (evt.target.selectionEnd > evt.target.selectionStart) {
-        selection = evt.target.selectionEnd;
-      } else {
-        selection = 0;
-      }
-
-      updateSuggestions();
-      break;
+  function selectionChange(detail) {
+    // We would get selectionchange event when the user type each char,
+    // or accept a word suggestion, so don't update suggestions in these
+    // cases.
+    if (detail.ownAction) {
+      return;
     }
+
+    //XXX: Don't update inputText here, since textBeforeCursor would only
+    // contain 100 chars at most.
+    cursor = detail.selectionStart;
+    if (detail.selectionEnd > detail.selectionStart) {
+      selection = detail.selectionEnd;
+    } else {
+      selection = 0;
+    }
+
+    updateSuggestions();
   }
 
   if (!('LAYOUT_PAGE_DEFAULT' in window))
