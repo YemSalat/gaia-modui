@@ -125,17 +125,17 @@
 
 .chrome .controls .urlbar .title {
   width: calc(100% - 3.2rem);
-  padding: 0 0.8rem 0 1rem;
+  padding: 0px 0.8rem 0px 1rem;
   box-sizing: padding-box;
   overflow: hidden;
   white-space: nowrap;
   font-weight: 300;
   font-size: 2rem;
   float: none;
-  background-color: rgba(204,204,204,0.2);
-  border-radius: 1.8rem;
+  background-color: transparent;
   text-overflow: ellipsis;
   font-style: italic;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
 }
 
 .search-app .chrome.maximized .controls .urlbar:after {
@@ -152,11 +152,13 @@
 }
 
 .appWindow.light .chrome:not(.maximized) .controls .urlbar .title {
-  background-color: rgba(204,204,204,0.4);
+  background-color: transparent;
+  text-shadow: none;
 }
 
 .maximized .controls .urlbar .title {
   background-color: transparent;
+  text-shadow: none;
 }
 
 
