@@ -64,6 +64,15 @@
   text-align: center;
 }
 
+/* modUI ;; additional transition effect */
+#cards-view.modui-close-all-transition ul {
+  transition: transform 0.5s ease;
+  perspective: 500;
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  transform: rotateX(90deg);
+}
+
 #cards-view .card {
   vertical-align: top;
   display: none;
@@ -123,13 +132,14 @@
 
 #cards-view .card .titles h1 {
   position: absolute;
-  top: calc(100% - 1.5rem);
+  top: -4.7rem;
   width: 100%;
+  text-align: center;
 }
 
 #cards-view .card .titles p {
   position: absolute;
-  top: calc(100% + 1rem);
+  top: -11rem;
   width: 100%;
   font-size: 2rem;
 }
@@ -157,11 +167,11 @@
 #cards-view .close-card {
   display: block;
   position: absolute;
-  top: -1rem;
-  left: -1rem;
+  top: -1.2rem;
+  left: -1.2rem;
   z-index: 99999;
-  height: 2.6rem;
-  width: 2.6rem;
+  height: 4rem;
+  width: 4rem;
   background: url(close.png) no-repeat center / 2.6rem;
   transform: scale(1.3);
 }
@@ -190,6 +200,32 @@
 }
 
 #cards-view.filtered .card .titles p {
+  display: none;
+}
+
+/* modUI ;; close all cards */
+#modui-cards-button-close-all {
+  visibility: visible;
+  display: block;
+  position: relative;
+  bottom: 7rem;
+  margin: 0px auto;
+  font-size: 2rem;
+  background: #000;
+  border-top: 0.1rem solid rgba(255, 255, 255, 0.5);
+  color: rgb(255, 255, 255);
+  padding: 1rem 2.4rem;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 2.2rem;
+  z-index: 999;
+  transition: 1s ease;
+}
+#modui-cards-button-close-all.active {
+  transform: scale(1.25, 1.25);
+}
+#cards-view.empty #modui-cards-button-close-all {
   display: none;
 }
 

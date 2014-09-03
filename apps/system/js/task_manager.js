@@ -648,6 +648,29 @@
       }
       return;
     }
+    // modUI ;; close all cards
+    if (targetNode.classList.contains('close-all-cards')) {
+      // close each card
+      var _self = this;
+      var _closeAllCards = function() {
+        for(var i=0, l=_self.cardsList.children.length; i<l; i++) {
+          var curNode = _self.cardsList.children[i];
+          if(_self.cardsList.contains(curNode)) {
+            card = _self.getCardForElement(curNode);
+            if (card) {
+              _self.cardAction(card, 'close');
+            }
+          }
+        }
+        containerNode.classList.remove('modui-close-all-transition');
+        targetNode.classList.remove('active');
+        targetNode.removeEventListener('transitionend', _closeAllCards, false);
+      };
+      containerNode.classList.add('modui-close-all-transition');
+      targetNode.classList.add('active');
+      targetNode.addEventListener('transitionend', _closeAllCards);
+      return;
+    }
     // Screen reader lands on one of card's children.
     var tmpNode = targetNode;
     while (tmpNode) {

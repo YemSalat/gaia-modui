@@ -264,7 +264,6 @@ var StatusBar = {
   },
 
   handleEvent: function sb_handleEvent(evt) {
-    console.log(evt.type)
     switch (evt.type) {
       case 'screenchange':
         this.setActive(evt.detail.screenEnabled);

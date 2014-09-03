@@ -98,14 +98,14 @@
    * @memberOf Card.prototype
    */
   Card.prototype._template =
-    '<div data-l10n-id="closeCard" class="close-card" role="button" ' +
-      'style="visibility: {closeButtonVisibility}"></div>' +
-    '<div class="screenshotView" data-l10n-id="openCard" role="button"></div>' +
-    '<div class="appIconView" style="background-image:{iconValue}"></div>' +
     '<div class="titles">' +
     '<h1 id="{titleId}" class="title">{title}</h1>' +
     '<p class="subtitle">{subTitle}</p>' +
-    '</div>';
+    '</div>'+
+    '<div data-l10n-id="closeCard" class="close-card" role="button" ' +
+      'style="visibility: {closeButtonVisibility}"></div>' +
+    '<div class="screenshotView" data-l10n-id="openCard" role="button"></div>' +
+    '<div class="appIconView" style="background-image:{iconValue}"></div>';
 
   /**
    * Card html view - builds the innerHTML for a card element
