@@ -21,6 +21,8 @@
   height: 4rem;
   vertical-align: middle;
   text-align: center;
+  height: 4.5rem;
+  padding-top: 0.4rem;
 }
 
 #quick-settings.non-mobile li {
@@ -43,7 +45,7 @@
 
 #quick-settings li.quick-settings-long-button a {
   display: inline-block;
-  height: 3rem;
+  height: 3.2rem;
   line-height: 1rem;
   min-width: 50%;
   float: none;
@@ -52,7 +54,10 @@
   vertical-align: middle;
   position: relative;
   top: 0.6rem;
-  border-top: .1rem solid rgba(255, 255, 255, .05);
+  border-top: 0.1rem solid rgba(255, 255, 255, 0.07);
+  height: 3rem;
+  box-shadow: 0 3px 3px rgba(0, 0, 0, 0.05) inset;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
 
 #quick-settings a:before {

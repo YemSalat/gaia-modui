@@ -589,6 +589,14 @@ body .utility-tray .statusbar > .sb-start {
   background-position: -26rem -8rem;
 }
 
+/* Screen orientation lock  ;; modUI */
+.sb-icon-lock-orientation {
+  background: url('images/lock-orientation.png') no-repeat;
+}
+.sb-icon-lock-orientation[hidden] {
+  display: none;
+}
+
 /* Hide icons applying a class to the status bar */
 .sb-hide-time .sb-icon-time,
 .sb-hide-battery .sb-icon-battery,

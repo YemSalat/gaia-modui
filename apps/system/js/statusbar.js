@@ -28,7 +28,7 @@ var StatusBar = {
     'battery', 'wifi', 'data', 'flight-mode', 'network-activity', 'tethering',
     'alarm', 'bluetooth', 'mute', 'headphones', 'bluetooth-headphones',
     'bluetooth-transferring', 'recording', 'sms', 'geolocation', 'usb', 'label',
-    'system-downloads', 'call-forwardings', 'playing', 'nfc'],
+    'system-downloads', 'call-forwardings', 'playing', 'nfc', 'lock-orientation'],
 
   // The indices indicate icons priority (lower index = highest priority)
   // In each subarray:
@@ -55,7 +55,8 @@ var StatusBar = {
     ['mute', 16 + 4],
     ['call-forwardings', null], // Width can change
     ['playing', 16 + 4],
-    ['headphones', 16 + 4]
+    ['headphones', 16 + 4],
+    ['lock-orientation', 16 + 4]
     //['sms' 16 + 4], // Not currently implemented.
     //['label' 16 + 4], // Only visible in the maximized status bar.
   ],
@@ -108,7 +109,8 @@ var StatusBar = {
     'vibration.enabled': ['vibration'],
     'ril.cf.enabled': ['callForwarding'],
     'operatorResources.data.icon': ['iconData'],
-    'statusbar.network-activity.disabled': ['networkActivity']
+    'statusbar.network-activity.disabled': ['networkActivity'],
+    'screen.orientation.lock': ['lockOrientation']
   },
 
   /* Track which settings are observed, so we don't add multiple listeners. */
@@ -262,6 +264,7 @@ var StatusBar = {
   },
 
   handleEvent: function sb_handleEvent(evt) {
+    console.log(evt.type)
     switch (evt.type) {
       case 'screenchange':
         this.setActive(evt.detail.screenEnabled);
@@ -1110,6 +1113,16 @@ var StatusBar = {
         !Bluetooth.isProfileConnected(Bluetooth.Profiles.OPP);
 
       this._updateIconVisibility();
+    },
+
+    lockOrientation: function sb_updateLockOrientation() {
+       var icon = this.icons.lockOrientation;
+
+       icon.hidden = !this.settingValues['screen.orientation.lock'];
+    //   icon.dataset.active = Bluetooth.connected;
+    //   this.updateIconLabel(icon, 'bluetooth', icon.dataset.active);
+
+       this._updateIconVisibility();
     },
 
     alarm: function sb_updateAlarm() {
