@@ -20,6 +20,7 @@
   width: 100%;
   height: 4rem;
   vertical-align: middle;
+  text-align: center;
 }
 
 #quick-settings.non-mobile li {
@@ -37,15 +38,14 @@
   text-decoration: none;
   outline: none;
   background: none;
-
   pointer-events: auto;
 }
 
 #quick-settings li.quick-settings-long-button a {
+  display: inline-block;
   height: 3rem;
   line-height: 1rem;
-  width: 50%;
-  margin: 0px auto;
+  min-width: 50%;
   float: none;
   clear: both;
   padding: 0rem 0px;
@@ -56,7 +56,7 @@
 }
 
 #quick-settings a:before {
-  line-height: 4rem;
+  line-height: 3.2rem;
 }
 
 #quick-settings li.quick-settings-long-button a:before {

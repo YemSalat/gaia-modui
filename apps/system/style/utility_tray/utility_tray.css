@@ -7,7 +7,7 @@
   top: calc(-100% + 6rem);
   width: calc(100%);
   height: calc(100% - 3rem);
-  background-color: hsla(0, 0%, 20%, .95);
+  background-color: hsla(0, 0%, 17%, .95);
   margin: 0;
 
   transform: translateY(-4rem);
