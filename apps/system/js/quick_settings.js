@@ -9,7 +9,7 @@ var QuickSettings = {
   geolocationEnabled: false,
   WIFI_STATUSCHANGE_TIMEOUT: 2000,
   // ID of elements to create references
-  ELEMENTS: ['wifi', 'data', 'bluetooth', 'airplane-mode', 'full-app'],
+  ELEMENTS: ['wifi', 'data', 'bluetooth', 'airplane-mode', 'orientation-lock', 'full-app'],
 
   init: function qs_init() {
     var settings = window.navigator.mozSettings;
@@ -264,6 +264,14 @@ var QuickSettings = {
 
           case this.airplaneMode:
             AirplaneMode.enabled = !this.airplaneMode.dataset.enabled;
+            break;
+
+          case this.orientationLock:
+            enabled = (this.orientationLock.dataset.enabled === 'true');
+            SettingsListener.getSettingsLock().set({
+              'screen.orientation.lock': !enabled
+            });
+            this.orientationLock.dataset.enabled = (!enabled).toString();
             break;
 
           case this.fullApp:

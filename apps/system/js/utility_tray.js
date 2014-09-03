@@ -211,6 +211,8 @@ var UtilityTray = {
 
       case 'resize':
         this.validateCachedSizes(true);
+        if(this.shown)
+          this.show(); /*mod UI fix */
         break;
 
       case 'mozChromeEvent':
