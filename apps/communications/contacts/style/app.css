@@ -457,7 +457,6 @@ li button.icon-find-and-merge:before {
 }
 
 .fillflow-media .edit-photo {
-  background: rgba(255, 255, 255, 0.4);
   top: 0;
   right: 5rem;
   z-index: 1;
@@ -569,7 +568,7 @@ html[dir="rtl"] ::-moz-placeholder {
 #contact-list-ice span {
   width: 3rem;
   height: 3rem;
-  background: url("/contacts/style/images/icon_ice.png");
+  background: url('/contacts/style/images/icon_ice.png') no-repeat 0 0 / 3rem auto transparent;
 }
 
 #groups-list.selecting #contact-list-ice {
