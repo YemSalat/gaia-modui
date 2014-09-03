@@ -1,6 +1,6 @@
 #search {
-  height: 4.6rem;
-  margin-bottom: 1rem;
+  height: 4.4rem;
+  margin-bottom: 1.4rem;
   background-color: rgba(0, 0, 0, 0.15);
 }
 
@@ -10,7 +10,7 @@
   display: block;
   width: calc(100% - 1rem);
   height: 3.4rem;
-  background: rgba(51, 51, 51, 0.35);
+  background: transparent;
   border-radius: 1.7rem;
   margin: .3rem .5rem .9rem .5rem;
   overflow: hidden;
