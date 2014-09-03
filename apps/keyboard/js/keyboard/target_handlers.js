@@ -257,6 +257,16 @@ CapsLockTargetHandler.prototype.doubleTap = function() {
   });
   this.app.visualHighlightManager.hide(this.target);
 };
+/* modUI ;; long press on shift for capslock */
+CapsLockTargetHandler.prototype.longPress = function() {
+  // Ignore any action when commit.
+  this.ignoreCommitActions = true;
+  this.app.upperCaseStateManager.switchUpperCaseState({
+    isUpperCaseLocked: true
+  });
+  this.app.targetHandlersManager.activeTargetsManager.clearAllTargets();
+  this.app.visualHighlightManager.hide(this.target);
+};
 
 var SwitchKeyboardTargetHandler = function(target, app) {
   DefaultTargetHandler.apply(this, arguments);
