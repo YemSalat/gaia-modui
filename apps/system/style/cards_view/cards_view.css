@@ -67,7 +67,7 @@
 /* modUI ;; additional transition effect */
 #cards-view.modui-close-all-transition ul {
   transition: 0.25s ease;
-  transform: scale(0);
+  transform: translate(0, -100%);
   opacity: 0.5;
 }
 
@@ -221,8 +221,7 @@
   transition: 0.25s ease;
 }
 #modui-cards-button-close-all.active {
-  transform: scale(1.35, 1.35);
-  opacity: 0;
+  transform: scale(1.25, 1.25);
 }
 #cards-view.empty #modui-cards-button-close-all {
   display: none;
