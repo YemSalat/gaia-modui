@@ -220,7 +220,7 @@
   z-index: 999;
 }
 #modui-cards-button-close-all.active {
-  animation: modui-animation-button 0.25s ease;
+  animation: modui-animation-button 0.25s 1 ease;
 }
 @keyframes modui-animation-button {
   0%, 100% {
