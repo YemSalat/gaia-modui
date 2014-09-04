@@ -664,11 +664,11 @@
         }
         containerNode.classList.remove('modui-close-all-transition');
         targetNode.classList.remove('active');
-        targetNode.removeEventListener('transitionend', _closeAllCards, false);
+        targetNode.removeEventListener('animationend', _closeAllCards, false);
       };
       containerNode.classList.add('modui-close-all-transition');
       targetNode.classList.add('active');
-      targetNode.addEventListener('transitionend', _closeAllCards);
+      targetNode.addEventListener('animationend', _closeAllCards);
       return;
     }
     // Screen reader lands on one of card's children.
