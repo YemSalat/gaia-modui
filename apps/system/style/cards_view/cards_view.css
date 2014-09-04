@@ -218,11 +218,19 @@
   border-bottom: none;
   border-radius: 2.2rem;
   z-index: 999;
-  transition: 0.25s ease;
 }
 #modui-cards-button-close-all.active {
-  transform: scale(1.25, 1.25);
+  animation: modui-animation-button 0.25s ease;
 }
+@keyframes modui-animation-button {
+  0%, 100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.25);
+  }
+}
+
 #cards-view.empty #modui-cards-button-close-all {
   display: none;
 }
