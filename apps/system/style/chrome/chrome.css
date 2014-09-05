@@ -11,6 +11,11 @@
   color: white;
 }
 
+:not(.browser).appWindow[data-shrinking-state="true"] > .chrome {
+  height: 4.6rem;
+  transform: scaleY(0.651) translateY(0);
+}
+
 .appWindow.light > .chrome {
   background-image: linear-gradient(rgba(0,0,0,0.05), rgba(0,0,0,0.05));
   background-color: white;
@@ -110,8 +115,8 @@
   margin-left: 0.5rem;
 }
 
-.scrollable .chrome .controls button:not([disabled]) + button[disabled] + .urlbar,
-.scrollable .chrome .controls button:not([disabled]) + .urlbar {
+.collapsible .chrome .controls button:not([disabled]) + button[disabled] + .urlbar,
+.collapsible .chrome .controls button:not([disabled]) + .urlbar {
   margin-left: 0;
 }
 
@@ -203,20 +208,20 @@
 
 .chrome.maximized .title[data-ssl="secure"] {
   padding-left: 3rem;
-  background: url("images/ssl.png") no-repeat 1.3rem center;
+  background: url("images/ssl.png") no-repeat 0.1rem center / 3rem 3rem;
 }
 
 .chrome.maximized .title[data-ssl="broken"] {
   padding-left: 3rem;
-  background: url("images/ssl_broken.png") no-repeat 1.3rem center;
+  background: url("images/ssl_broken.png") no-repeat 0.1rem center / 3rem 3rem;
 }
 
-.scrollable .chrome:not(.maximized) .back-button:not([disabled]) + .forward-button[disabled] + .urlbar,
-.scrollable .chrome:not(.maximized) .forward-button:not([disabled]) + .urlbar {
+.collapsible .chrome:not(.maximized) .back-button:not([disabled]) + .forward-button[disabled] + .urlbar,
+.collapsible .chrome:not(.maximized) .forward-button:not([disabled]) + .urlbar {
   transform: scaleX(0.6521) translateX(-5.5rem);
 }
 
-.scrollable .chrome:not(.maximized) .back-button:not([disabled]) + .forward-button:not([disabled]) + .urlbar {
+.collapsible .chrome:not(.maximized) .back-button:not([disabled]) + .forward-button:not([disabled]) + .urlbar {
   transform: scaleX(0.6521) translateX(-12rem);
 }
 
@@ -383,23 +388,22 @@ gaia-overflow-menu button#share {
 }
 
 /* Progress */
-.appWindow:not(.bar).scrollable > .chrome gaia-progress {
+.appWindow:not(.bar).collapsible > .chrome gaia-progress {
   top: 7.3rem;
 }
 
 /* App specifics */
-.appWindow:not(.scrollable) > .chrome:not(.maximized) .controls button {
+.appWindow:not(.collapsible) > .chrome:not(.maximized) .controls button {
   display: none;
 }
 
-.appWindow:not(.scrollable) > .chrome:not(.maximized) .controls .forward-button:not([disabled]) + .urlbar,
-.appWindow:not(.scrollable) > .chrome:not(.maximized) .controls .back-button:not([disabled]) + .forward-button[disabled] + .urlbar,
-.appWindow:not(.scrollable) > .chrome:not(.maximized) .controls .back-button:not([disabled]) + .forward-button:not([disabled]) + .urlbar,
-.appWindow:not(.scrollable) > .chrome:not(.maximized) .controls .urlbar {
+.appWindow:not(.collapsible) > .chrome:not(.maximized) .controls .forward-button:not([disabled]) + .urlbar,
+.appWindow:not(.collapsible) > .chrome:not(.maximized) .controls .back-button:not([disabled]) + .forward-button[disabled] + .urlbar,
+.appWindow:not(.collapsible) > .chrome:not(.maximized) .controls .back-button:not([disabled]) + .forward-button:not([disabled]) + .urlbar,
+.appWindow:not(.collapsible) > .chrome:not(.maximized) .controls .urlbar {
   width: calc(100% - 8rem);
 }
 
-.appWindow:not(.scrollable) > .chrome .controls .urlbar .title {
+.appWindow:not(.collapsible) > .chrome .controls .urlbar .title {
   width: calc(100%);
 }
-

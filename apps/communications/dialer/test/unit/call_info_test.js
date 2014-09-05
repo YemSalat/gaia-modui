@@ -213,7 +213,7 @@ suite('Call Info', function(argument) {
       CallInfo.show(fakeNumber, fakeDate, fakeType, fakeStatus);
     });
 
-    test('should highlight selected number', function() {
+    test('should highlight selected number as not missed', function() {
       this.sinon.spy(MockContactsButtons, 'reMark');
 
       var oldType = groupReturn.type;
@@ -225,13 +225,32 @@ suite('Call Info', function(argument) {
                               'tel', fakeNumber, 'remark');
     });
 
-    test('should highlight selected and missed number', function() {
+    test('should highlight selected and incoming number as not missed',
+    function() {
       this.sinon.spy(MockContactsButtons, 'reMark');
 
       var oldType = groupReturn.type;
+      var oldStatus = groupReturn.status;
       groupReturn.type = 'incoming';
+      groupReturn.status = 'connected';
       initCallInfo();
       groupReturn.type = oldType;
+      groupReturn.status = oldStatus;
+
+      sinon.assert.calledWith(MockContactsButtons.reMark,
+                              'tel', fakeNumber, 'remark');
+    });
+
+    test('should highlight selected and missed number as missed', function() {
+      this.sinon.spy(MockContactsButtons, 'reMark');
+
+      var oldType = groupReturn.type;
+      var oldStatus = groupReturn.status;
+      groupReturn.type = 'incoming';
+      groupReturn.status = 'not-connected';
+      initCallInfo();
+      groupReturn.type = oldType;
+      groupReturn.status = oldStatus;
 
       sinon.assert.calledWith(MockContactsButtons.reMark,
                               'tel', fakeNumber, 'remark-missed');
@@ -421,7 +440,7 @@ suite('Call Info', function(argument) {
         this.sinon.clock.tick();
 
         var durations = document.getElementsByClassName('cd__duration');
-        assert.equal(durations[0].getAttribute('data-l10n-id'), 'missed');
+        assert.equal(durations[0].getAttribute('data-l10n-id'), 'info-missed');
       });
     });
 

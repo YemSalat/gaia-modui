@@ -21,6 +21,10 @@
     callInfoView.hidden = false;
   }
 
+  function isMissedCall(group) {
+    return group.type === 'incoming' && group.status !== 'connected';
+  }
+
   function updateGroupInformation(group) {
     var titleElt = document.getElementById('call-info-title');
     if (group.contact) {
@@ -38,18 +42,12 @@
 
     var classList = document.getElementById('call-info-direction').classList;
     classList.remove('icon-outgoing', 'icon-incoming', 'icon-missed');
-    switch (group.type) {
-      case 'dialing':
-      case 'alerting':
-        classList.add('icon-outgoing');
-        break;
-      case 'incoming':
-        if (group.status === 'connected') {
-          classList.add('icon-incoming');
-        } else {
-          classList.add('icon-missed');
-        }
-        break;
+    if (isMissedCall(group)) {
+      classList.add('icon-missed');
+    } else if (group.type === 'dialing' || group.type === 'alerting') {
+      classList.add('icon-outgoing');
+    } else if (group.type === 'incoming'){
+      classList.add('icon-incoming');
     }
   }
 
@@ -74,12 +72,13 @@
       navigator.mozL10n.once(function() {
         if (call.duration === 0) {
           if (group.type === 'incoming') {
-            duration.setAttribute('data-l10n-id', 'missed');
+            duration.setAttribute('data-l10n-id', 'info-missed');
           } else {
             duration.setAttribute('data-l10n-id', 'canceled');
           }
         } else {
-          duration.textContent = Utils.prettyDuration(call.duration);
+          duration.textContent =
+            Utils.prettyDuration(call.duration, 'callDurationText');
         }
       });
 
@@ -103,7 +102,7 @@
 
   function renderPhones(group, contact) {
     ContactsButtons.renderPhones(contact);
-    var remark = group.type === 'incoming' ? 'remark-missed' : 'remark';
+    var remark = isMissedCall(group) ? 'remark-missed' : 'remark';
     ContactsButtons.reMark(
       'tel', group.number || group.contact.matchingTel.number, remark);
   }
@@ -156,9 +155,7 @@
       src += '&back_to_previous_tab=1';
       // Contacts app needs to know if it's a missed call for different
       // highlight color of the phone number in contacts details
-      var isMissedCall = currentGroup.type == 'incoming' &&
-                         currentGroup.status !== 'connected';
-      src += '&isMissedCall=' + isMissedCall;
+      src += '&isMissedCall=' + isMissedCall(currentGroup);
       var timestamp = new Date().getTime();
       contactsIframe.src = src + '&timestamp=' + timestamp;
     });
@@ -173,18 +170,17 @@
   }
 
   function launchActivity(name, phoneNumber) {
-    var options = {
-      name: name,
-      data: {
-        type: 'webcontacts/contact',
-        params: {
-          'tel': phoneNumber
-        }
-      }
-    };
     try {
       /* jshint nonew: false */
-      new MozActivity(options);
+      new MozActivity({
+        name: name,
+        data: {
+          type: 'webcontacts/contact',
+          params: {
+            'tel': phoneNumber
+          }
+        }
+      });
     } catch (e) {
       console.error('Error while creating activity');
     }

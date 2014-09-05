@@ -461,15 +461,12 @@ var StatusBar = {
   },
 
   _getMinimizedStatusBarWidth: function sb_getMinimizedStatusBarWidth() {
-    // The url bar takes approx. 50% of the total screen width in portrait.
-    // This formula reflects the CSS styling applied to it when minimized:
-    // * width: calc(100% - 8rem);
-    // * transform: scaleX(0.6521);
-    // * margin-left: 0.5rem;
-    var urlBarWidth = ((window.innerWidth - 80) * 0.6521) - 5;
-    // Then we consider the style of the status bar:
+    // The rocket bar takes approx. 50% of the total screen width in portrait.
+    // This formula reflects the CSS styling applied to #statusbar-minimized.
+    // From /apps/system/style/statusbar/statusbar.css, line 79:
+    // * width: calc(100% - 100% * 0.6521 + 8rem * 0.6521 - 0.5rem);
     // * padding: 0 0.3rem 0 0;
-    return window.innerWidth - urlBarWidth - 3;
+    return window.innerWidth - window.innerWidth * 0.6521 + 80 * 0.6521 - 5 - 3;
   },
 
   _updateIconVisibility: function sb_updateIconVisibility() {
@@ -909,6 +906,7 @@ var StatusBar = {
         var voice = conn.voice;
         var data = conn.data;
         var icon = self.icons.signals[index];
+        var roaming = self.icons.roaming[index];
 
         var _ = navigator.mozL10n.get;
 
@@ -927,7 +925,8 @@ var StatusBar = {
           // no SIM
           delete icon.dataset.level;
           delete icon.dataset.searching;
-          delete icon.dataset.roaming;
+          roaming.hidden = true;
+
           icon.setAttribute('aria-label', _('noSimCard'));
         } else if (data && data.connected && data.type.startsWith('evdo')) {
           // "Carrier" / "Carrier (Roaming)" (EVDO)
@@ -955,7 +954,7 @@ var StatusBar = {
           // searching icon if the device is searching. Or show the signal bars
           // with a red "x", which stands for emergency calls only.
           icon.dataset.searching = (voice.state === 'searching');
-          delete icon.dataset.roaming;
+          roaming.hidden = true;
           icon.setAttribute('aria-label', _(icon.dataset.searching ?
             'statusbarSignalNoneSearching' : 'emergencyCallsOnly'));
         }
@@ -1306,7 +1305,8 @@ var StatusBar = {
 
   updateSignalIcon: function sb_updateSignalIcon(icon, connInfo) {
     icon.dataset.level = Math.ceil(connInfo.relSignalStrength / 20); // 0-5
-    icon.dataset.roaming = connInfo.roaming;
+    var roaming = this.icons.roaming[icon.dataset.index || 0];
+    roaming.hidden = !connInfo.roaming;
 
     delete icon.dataset.searching;
 
@@ -1406,24 +1406,35 @@ var StatusBar = {
       this.icons.connections.dataset.multiple = multipleSims;
       this.icons.signals = {};
       this.icons.data = {};
+      this.icons.roaming = {};
       for (var i = conns.length - 1; i >= 0; i--) {
         var signal = document.createElement('div');
         var data = document.createElement('div');
+        var roaming = document.createElement('div');
         signal.className = 'sb-icon sb-icon-signal statusbar-signal';
         signal.dataset.level = '5';
         if (multipleSims) {
           signal.dataset.index = i + 1;
         }
         signal.setAttribute('role', 'listitem');
+        signal.hidden = true;
         data.setAttribute('role', 'listitem');
         data.className = 'sb-icon statusbar-data';
         data.hidden = true;
 
+        roaming.setAttribute('role', 'listitem');
+        roaming.className = 'sb-icon sb-icon-roaming';
+        roaming.hidden = true;
+
+        signal.appendChild(data);
         this.icons.connections.appendChild(signal);
-        this.icons.connections.appendChild(data);
+        this.icons.connections.appendChild(roaming);
         this.icons.signals[i] = signal;
         this.icons.data[i] = data;
+        this.icons.roaming[i] = roaming;
       }
+
+      this.updateConnectionsVisibility();
     }
   },
 
@@ -1449,11 +1460,11 @@ var StatusBar = {
         }
         callForwarding.setAttribute('role', 'listitem');
         callForwarding.setAttribute('aria-label', 'statusbarForwarding');
+        callForwarding.hidden = true;
         this.icons.callForwardings.appendChild(callForwarding);
         this.icons.callForwardingsElements[idx] = callForwarding;
       }
 
-      this.updateConnectionsVisibility();
       this.updateCallForwardingsVisibility();
     }
   },

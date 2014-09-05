@@ -53,7 +53,8 @@
     dismissSuggestions: dismissSuggestions,
     setLayoutParams: setLayoutParams,
     setLanguage: setLanguage,
-    selectionChange: selectionChange
+    selectionChange: selectionChange,
+    generateNearbyKeyMap: nearbyKeys
   };
 
   // This is the object that is passed to init().
@@ -423,6 +424,9 @@
     }, function() {
       // the previous sendKey or replaceSurroundingText has been rejected,
       // No need to update the state.
+    })['catch'](function(e) { // ['catch'] for gjslint error
+      // Print the error and make sure inputSequencePromise always resolves.
+      console.error(e);
     });
 
     // Need to return the promise, so that the caller could know
@@ -831,6 +835,9 @@
 
       var dx = (cx1 - cx2) / radius;
       var dy = (cy1 - cy2) / radius;
+      // We calculate distance from center to center, but this gives
+      // too high of a penalty to vertical keys, so normalize dx/dy
+      dy /= (key1.height / key1.width);
       var distanceSquared = dx * dx + dy * dy;
 
       if (distanceSquared < 1) {

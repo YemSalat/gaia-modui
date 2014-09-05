@@ -8,10 +8,12 @@ var NotificationScreen = {
   TOASTER_TIMEOUT: 5000,
   TRANSITION_FRACTION: 0.30,
   TAP_THRESHOLD: 10,
+  SCROLL_THRESHOLD: 10,
 
   _notification: null,
   _containerWidth: null,
   _touchStartX: 0,
+  _touchStartY: 0,
   _touchPosX: 0,
   _touching: false,
   _isTap: false,
@@ -69,6 +71,7 @@ var NotificationScreen = {
     // will hold the count of external contributors to the notification
     // screen
     this.externalNotificationsCount = 0;
+    this.unreadNotifications = 0;
 
     window.addEventListener('utilitytrayshow', this);
     // Since UI expect there is a slight delay for the opened notification.
@@ -182,6 +185,7 @@ var NotificationScreen = {
 
   hideNotificationIndicator: function ns_hideNotificationIndicator() {
     this.toaster.className = '';
+    this.unreadNotifications = 0;
   },
 
   // TODO: Remove this when we ditch mozNotification (bug 952453)
@@ -230,10 +234,10 @@ var NotificationScreen = {
     if (!target.dataset.notificationId)
       return;
 
-    evt.preventDefault();
     this._notification = target;
     this._containerWidth = this.container.clientWidth;
     this._touchStartX = evt.touches[0].pageX;
+    this._touchStartY = evt.touches[0].pageY;
     this._touchPosX = 0;
     this._touching = true;
     this._isTap = true;
@@ -244,13 +248,16 @@ var NotificationScreen = {
       return;
     }
 
-    if (evt.touches.length !== 1) {
+    var touchDiffY = Math.abs(evt.touches[0].pageY - this._touchStartY);
+    if (evt.touches.length !== 1 ||
+        (this._isTap && touchDiffY >= this.SCROLL_THRESHOLD)) {
       this._touching = false;
       this.cancelSwipe();
       return;
     }
 
     evt.preventDefault();
+
     this._touchPosX = evt.touches[0].pageX - this._touchStartX;
     if (this._touchPosX >= this.TAP_THRESHOLD) {
       this._isTap = false;
@@ -390,6 +397,8 @@ var NotificationScreen = {
       (isPriorityNotification) ?
       this.container.querySelector('.priority-notifications') :
       this.container.querySelector('.other-notifications');
+
+    this.unreadNotifications++;
 
     var notificationNode = document.createElement('div');
     notificationNode.classList.add('notification');
@@ -727,11 +736,7 @@ var NotificationScreen = {
   },
 
   updateNotificationIndicator: function ns_updateNotificationIndicator(unread) {
-    var notifCount = this.externalNotificationsCount;
-
-    notifCount += this.container.querySelectorAll('.notification').length;
-
-    var indicatorSize = getIndicatorSize(notifCount);
+    var indicatorSize = getIndicatorSize(this.unreadNotifications);
 
     if (unread) {
       this.toaster.classList.add('unread');
@@ -741,6 +746,7 @@ var NotificationScreen = {
 
   incExternalNotifications: function ns_incExternalNotifications() {
     this.externalNotificationsCount++;
+    this.unreadNotifications++;
     this.updateNotificationIndicator(true);
   },
 
