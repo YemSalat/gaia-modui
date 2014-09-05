@@ -172,6 +172,8 @@
 
     this.cardsList = document.getElementById('cards-list');
     this.screenElement = document.getElementById('screen');
+
+    this.closeAllButton = document.getElementById('modui-cards-button-close-all'); // modUI
   };
 
   TaskManager.prototype._registerShowingEvents = function() {
@@ -657,16 +659,16 @@
           var curNode = _self.cardsList.children[i];
           if(_self.cardsList.contains(curNode)) {
             card = _self.getCardForElement(curNode);
-            if ( card && card.element ) {
+            if ( card && card.element !== null ) {
               _self.cardAction(card, 'close');
             }
           }
         }
-        containerNode.classList.remove('modui-close-all-transition');
-        targetNode.classList.remove('active');
+        _self.element.classList.remove('modui-close-all-transition');
+        _self.closeAllButton.classList.remove('active');
       };
-      containerNode.classList.add('modui-close-all-transition');
-      targetNode.classList.add('active');
+      this.element.classList.add('modui-close-all-transition');
+      this.closeAllButton.classList.add('active');
       console.log(targetNode.style.animationDuration);
       window.setTimeout(_closeAllCards, 1000);
       return;
