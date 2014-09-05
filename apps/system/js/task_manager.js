@@ -657,18 +657,18 @@
           var curNode = _self.cardsList.children[i];
           if(_self.cardsList.contains(curNode)) {
             card = _self.getCardForElement(curNode);
-            if (card) {
+            if ( card && card.element ) {
               _self.cardAction(card, 'close');
             }
           }
         }
         containerNode.classList.remove('modui-close-all-transition');
         targetNode.classList.remove('active');
-        targetNode.removeEventListener('animationend', _closeAllCards, false);
       };
       containerNode.classList.add('modui-close-all-transition');
       targetNode.classList.add('active');
-      targetNode.addEventListener('animationend', _closeAllCards);
+      console.log(targetNode.style.animationDuration);
+      window.setTimeout(_closeAllCards, 1000);
       return;
     }
     // Screen reader lands on one of card's children.
