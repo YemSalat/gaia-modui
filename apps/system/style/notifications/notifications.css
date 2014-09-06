@@ -143,6 +143,7 @@
   transform: translateY(-5rem);
   transition: transform .2s ease-in-out;
   opacity: 1;
+  background-color: #000;
 }
 
 :not(.unread) .displayed #notifications-indicator {
