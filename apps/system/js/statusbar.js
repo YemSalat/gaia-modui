@@ -1426,9 +1426,11 @@ var StatusBar = {
         roaming.className = 'sb-icon sb-icon-roaming';
         roaming.hidden = true;
 
-        signal.appendChild(data);
+        // modUI temp fix, otherwise 'H' is displayed on top
+        //signal.appendChild(data);
         this.icons.connections.appendChild(signal);
         this.icons.connections.appendChild(roaming);
+        this.icons.connections.appendChild(data);
         this.icons.signals[i] = signal;
         this.icons.data[i] = data;
         this.icons.roaming[i] = roaming;
