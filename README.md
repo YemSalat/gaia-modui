@@ -1,9 +1,9 @@
 # modUI
 
-[WARNING] I am currently learning Gaia architecture as I'm making changes, so there most of them are rather 'hacky', but I try to follow the conventions and prefix my stuff (css/functions/etc.) with 'modui' [/WARNING]
-
 My take on Gaia. I'm using ZTE Open C as my primary phone now and this is my primary testing device as well.
 This version fixes some annoyances that i have with the phone.
+
+I am currently learning Gaia architecture as I'm making changes, so some of them are rather 'hacky', but I try to follow the conventions and prefix my stuff (css/functions/etc.) with 'modui'
 
 The flash-ready builds for ZTE Open (1st gen) and ZTE Open C are available on XDA forums.
 
