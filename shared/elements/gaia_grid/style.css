@@ -115,6 +115,38 @@
   opacity: 0.65;
 }
 
+/* modUI */
+
+/*@keyframes modui-icon-wiggle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.edit-mode .icon {
+  animation: modui-icon-wiggle 0.25s infinite ease-in-out;
+}
+
+.edit-mode .icon:nth-child(1n) {
+  animation-delay: 0.4s;
+}
+.edit-mode .icon:nth-child(2n) {
+  animation-delay: 0.8s;
+}
+.edit-mode .icon:nth-child(3n) {
+  animation-delay: 1.2s;
+}
+.edit-mode .icon:nth-child(4n) {
+  animation-delay: 1.6s;
+}
+.edit-mode .icon:nth-child(5n) {
+  animation-delay: 2s;
+}*/
+
+
 .dragging .divider,
 .dragging .icon:not(.active),
 .dropped {
