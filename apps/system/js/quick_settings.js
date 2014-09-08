@@ -272,6 +272,14 @@ var QuickSettings = {
             AirplaneMode.enabled = !this.airplaneMode.dataset.enabled;
             break;
 
+          case this.orientationLock:
+            enabled = (this.orientationLock.dataset.enabled === 'true');
+            SettingsListener.getSettingsLock().set({
+              'screen.orientation.lock': !enabled
+            });
+            this.orientationLock.dataset.enabled = (!enabled).toString();
+            break;
+
           case this.fullApp:
             // XXX: This should be replaced probably by Web Activities
             var host = document.location.host;
