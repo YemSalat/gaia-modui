@@ -17,6 +17,7 @@ Changes in v0.2:
 - added 'lock orientation' button to swipe screen
 - changed layout of swipe screen
 - added 'close all' button to task manager
+- long tap on shift for capslock
 
 
 The following is copied from Gaia's readme:
