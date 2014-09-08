@@ -1,4 +1,27 @@
-# Gaia [![Build Status](https://travis-ci.org/mozilla-b2g/gaia.svg)](https://travis-ci.org/mozilla-b2g/gaia)
+# modUI
+
+[WARNING] I am currently learning Gaia architecture as I'm making changes, so there most of them are rather 'hacky', but I try to follow the conventions and prefix my stuff (css/functions/etc.) with 'modui' [/WARNING]
+
+My take on Gaia. I'm using ZTE Open C as my primary phone now and this is my primary testing device as well.
+This version fixes some annoyances that i have with the phone.
+
+The flash-ready builds for ZTE Open (1st gen) and ZTE Open C are available on XDA forums.
+
+Changes in v0.2:
+
+- restored default browser
+- added google suggestions to default browser
+- added DuckDuckGo to search engines
+- made system icons more consistent
+- changed homescreen layout
+- added 'lock orientation' button to swipe screen
+- changed layout of swipe screen
+- added 'close all' button to task manager
+
+
+The following is copied from Gaia's readme:
+
+# Gaia
 
 Gaia is Mozilla's Phone UX for the Boot to Gecko (B2G) project.
 
