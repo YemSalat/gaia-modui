@@ -655,16 +655,24 @@
       // close each card
       var _self = this;
       var _closeAllCards = function() {
-        for(var i=0, l=_self.cardsList.children.length; i<l; i++) {
-          var curNode = _self.cardsList.children[i];
-          if(_self.cardsList.contains(curNode)) {
-            card = _self.getCardForElement(curNode);
-            if ( card && card.element !== null ) {
-              try { _self.cardAction(card, 'close'); }
-              catch(e) { console.error(e); }
+        var __removeEls = function(arr) {
+          for(var i=0, l=arr.length; i<l; i++) {
+            var curNode = _self.cardsList.children[i];
+            if(_self.cardsList.contains(curNode)) {
+              card = _self.getCardAtIndex(i);
+              if ( card && card.element !== null ) {
+                try { _self.cardAction(card, 'close'); }
+                catch(e) { console.error(e); }
+              }
             }
           }
         }
+        var cardNodesArray;
+        do {
+          cardNodesArray = Array.prototype.slice.call(_self.cardsList.children);
+          __removeEls(cardNodesArray);
+        }
+        while(cardNodesArray.length>0)
         _self.element.classList.remove('modui-close-all-transition');
         _self.closeAllButton.classList.remove('active');
         _self.closeAllButton.removeEventListener('animationend', _closeAllCards);
