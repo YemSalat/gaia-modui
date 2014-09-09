@@ -7,6 +7,7 @@
 var QuickSettings = {
   // Indicate setting status of geolocation.enabled
   geolocationEnabled: false,
+  orientationLockEnabled: false, // modUI
   WIFI_STATUSCHANGE_TIMEOUT: 2000,
   // ID of elements to create references
   ELEMENTS: ['wifi', 'data', 'bluetooth', 'airplane-mode', 'orientation-lock', 'full-app'],
@@ -46,7 +47,15 @@ var QuickSettings = {
     this.monitorWifiChange();
     this.monitorGeoChange();
     this.monitorAirplaneModeChange();
-    this.monitorOrientationLockChange(); // modUI
+    // modUI
+    this.monitorOrientationLockChange();
+
+    var self = this;
+    // check actual orientation lock setting
+    var orientationLockSetting = SettingsListener.getSettingsLock().get('screen.orientation.lock')
+    orientationLockSetting.onsuccess = function () {
+      self.orientationLockEnabled = orientationLockSetting.result['screen.orientation.lock'];
+    }
   },
 
   monitorDataChange: function() {
@@ -189,6 +198,7 @@ var QuickSettings = {
      */
     var self = this;
     SettingsListener.observe('screen.orientation.lock', true, function(value) {
+      self.orientationLockEnabled = value;
       self.orientationLock.dataset.enabled = value;
     });
   },
@@ -285,11 +295,10 @@ var QuickSettings = {
             break;
 
           case this.orientationLock:
-            enabled = !!this.orientationLock.dataset.enabled;
+            var self = this;
             SettingsListener.getSettingsLock().set({
-              'screen.orientation.lock': !enabled
+              'screen.orientation.lock': !self.orientationLockEnabled
             });
-            break;
 
           case this.fullApp:
             // XXX: This should be replaced probably by Web Activities
