@@ -46,6 +46,7 @@ var QuickSettings = {
     this.monitorWifiChange();
     this.monitorGeoChange();
     this.monitorAirplaneModeChange();
+    this.monitorOrientationLockChange(); // modUI
   },
 
   monitorDataChange: function() {
@@ -181,6 +182,17 @@ var QuickSettings = {
     window.addEventListener('wifi-statuschange', this);
   },
 
+  // modUI
+  monitorOrientationLockChange: function() {
+    /* monitor geolocation setting
+     * TODO prevent quickly tapping on it
+     */
+    var self = this;
+    SettingsListener.observe('screen.orientation.lock', true, function(value) {
+      self.orientationLock.dataset.enabled = value;
+    });
+  },
+
   monitorGeoChange: function() {
     /* monitor geolocation setting
      * TODO prevent quickly tapping on it
@@ -277,7 +289,7 @@ var QuickSettings = {
             SettingsListener.getSettingsLock().set({
               'screen.orientation.lock': !enabled
             });
-            this.orientationLock.dataset.enabled = (!enabled).toString();
+            this.orientationLock.dataset.enabled = !enabled;
             break;
 
           case this.fullApp:
