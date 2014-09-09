@@ -285,7 +285,7 @@ var QuickSettings = {
             break;
 
           case this.orientationLock:
-            enabled = (this.orientationLock.dataset.enabled === 'true');
+            enabled = !!this.orientationLock.dataset.enabled;
             SettingsListener.getSettingsLock().set({
               'screen.orientation.lock': !enabled
             });
