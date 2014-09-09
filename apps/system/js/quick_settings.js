@@ -7,7 +7,6 @@
 var QuickSettings = {
   // Indicate setting status of geolocation.enabled
   geolocationEnabled: false,
-  orientationLockEnabled: false, // modUI
   WIFI_STATUSCHANGE_TIMEOUT: 2000,
   // ID of elements to create references
   ELEMENTS: ['wifi', 'data', 'bluetooth', 'airplane-mode', 'orientation-lock', 'full-app'],
@@ -47,15 +46,7 @@ var QuickSettings = {
     this.monitorWifiChange();
     this.monitorGeoChange();
     this.monitorAirplaneModeChange();
-    // modUI
-    this.monitorOrientationLockChange();
-
-    var self = this;
-    // check actual orientation lock setting
-    var orientationLockSetting = SettingsListener.getSettingsLock().get('screen.orientation.lock')
-    orientationLockSetting.onsuccess = function () {
-      self.orientationLockEnabled = orientationLockSetting.result['screen.orientation.lock'];
-    }
+    this.monitorOrientationLockChange(); // modUI
   },
 
   monitorDataChange: function() {
@@ -198,7 +189,6 @@ var QuickSettings = {
      */
     var self = this;
     SettingsListener.observe('screen.orientation.lock', true, function(value) {
-      self.orientationLockEnabled = value;
       self.orientationLock.dataset.enabled = value;
     });
   },
@@ -295,10 +285,16 @@ var QuickSettings = {
             break;
 
           case this.orientationLock:
-            var self = this;
-            SettingsListener.getSettingsLock().set({
-              'screen.orientation.lock': !self.orientationLockEnabled
-            });
+            var _orientationLock = SettingsListener.getSettingsLock().get('screen.orientation.lock')
+            _orientationLock.onsuccess = function () {
+              SettingsListener.getSettingsLock().set({
+                'screen.orientation.lock': !_orientationLock.result['screen.orientation.lock']
+              });
+            }
+            _orientationLock.onerror = function () {
+              console.error('Error occured while handling tap on orientation locker :: quick_settings.js ::: modUI');
+            }
+            break;
 
           case this.fullApp:
             // XXX: This should be replaced probably by Web Activities
