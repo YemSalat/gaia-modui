@@ -18,3 +18,15 @@ Bug 1018269 - we need to specify the keyframe outside
     transform: rotate(360deg)
   }
 }
+
+@keyframes blink {
+  0% {
+    opacity: 0
+  }
+  50% {
+    opacity: 1
+  }
+  100% {
+	opacity: 0
+  }
+}

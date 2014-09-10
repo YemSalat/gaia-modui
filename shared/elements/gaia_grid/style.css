@@ -60,6 +60,26 @@
   background: url(images/add.png) no-repeat;
 }
 
+.edit-mode .icon {
+  animation: blink 0.25s infinite ease;
+}
+
+.edit-mode .icon:nth-child(1n) {
+  animation-delay: 0s;
+}
+.edit-mode .icon:nth-child(2n) {
+  animation-delay: 0.4s;
+}
+.edit-mode .icon:nth-child(3n) {
+  animation-delay: 0.8s;
+}
+.edit-mode .icon:nth-child(4n) {
+  animation-delay: 1.2s;
+}
+.edit-mode .icon:nth-child(5n) {
+  animation-delay: 1.6s;
+}
+
 .icon p {
   pointer-events: none;
   height: 3.2rem;
