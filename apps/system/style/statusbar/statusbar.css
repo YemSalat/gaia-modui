@@ -14,14 +14,71 @@
   position: fixed;
   width: 100%;
   height: 3rem;
-  top: -3rem;
+  top: 0;
   left: 0;
+  pointer-events: none;
+}
+
+.statusbar > div,
+.statusbar > img {
+  pointer-events: auto;
+}
+
+#statusbar.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#statusbar-maximized-wrapper {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#statusbar-minimized-wrapper {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#statusbar.maximized #statusbar-maximized-wrapper {
+  opacity: 1;
+  visibility: visible;
+}
+
+#statusbar:not(.maximized) #statusbar-minimized-wrapper {
+  opacity: 1;
+  visibility: visible;
+}
+
+#screen:not(.locked):not(.minimized-tray).fullscreen-app #statusbar {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#screen.locked #statusbar,
+#screen:not(.locked).utility-tray #statusbar {
+  visibility: visible;
+  filter: none;
+}
+
+#screen:not(.locked).utility-tray #statusbar-maximized-wrapper {
+  opacity: 1;
+  visibility: visible;
+}
+
+#screen:not(.locked).utility-tray #statusbar-minimized-wrapper {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#screen.cards-view #statusbar {
+  opacity: 0;
+  visibility: hidden;
 }
 
 @media (orientation: landscape) {
   #screen.software-button-enabled #statusbar-background,
   #screen.software-button-enabled #statusbar {
-    width: calc(100% - 5rem);
+    width: calc(100% - var(--software-home-button-height));
   }
 }
 
@@ -63,6 +120,8 @@ body #statusbar {
 }
 
 .statusbar {
+  display: flex;
+  justify-content: flex-end;
   position: absolute;
   width: 100%;
   height: 3rem;
@@ -70,7 +129,6 @@ body #statusbar {
   top: 0;
   right: 0;
   padding: 0 0.3rem;
-  transition: opacity 0.3s;
   overflow: hidden;
   white-space: nowrap;
   box-sizing: border-box;
@@ -82,7 +140,6 @@ body #statusbar {
 }
 
 .statusbar > * {
-  float: right;
   margin: 0.6rem 0.2rem 0.6rem 0.2rem;
 }
 
@@ -94,14 +151,6 @@ body #statusbar {
 *[dir=rtl] .statusbar {
   right: auto;
   left: 0;
-}
-
-*[dir=rtl] .statusbar > * {
-  float: left;
-}
-
-*[dir=rtl] body .statusbar > .sb-start {
-  float: right;
 }
 
 .statusbar > .sb-start-upper {
@@ -227,6 +276,7 @@ body .utility-tray .statusbar > .sb-start {
 #statusbar-connections[data-multiple="true"] .statusbar-data[hidden] {
   display: block;
   opacity: 0;
+  visibility: hidden;
 }
 
 /* call forwarding icons */

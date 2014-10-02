@@ -6,7 +6,8 @@
   ScreenManager,
   MockNavigatorMozTelephony,
   MockCall,
-  MockVersionHelper
+  MockVersionHelper,
+  UtilityTray
  */
 
 'use strict';
@@ -99,7 +100,7 @@ suite('system/NotificationScreen >', function() {
     fakeSomeNotifications = createFakeElement('span', 'notification-some');
     fakeNoNotifications = createFakeElement('span', 'notification-none');
     fakeButton = createFakeElement('button', 'notification-clear');
-    fakeAmbientIndicator = createFakeElement('span', 'notifications-indicator');
+    fakeAmbientIndicator = createFakeElement('div', 'ambient-indicator');
     fakeToasterIcon = createFakeElement('img', 'toaster-icon');
     fakeToasterTitle = createFakeElement('div', 'toaster-title');
     fakeToasterDetail = createFakeElement('div', 'toaster-detail');
@@ -184,6 +185,11 @@ suite('system/NotificationScreen >', function() {
       navigator.mozTelephony = realMozTelephony;
     });
 
+    setup(function() {
+      MockNavigatorMozTelephony.calls = [];
+      MockNavigatorMozTelephony.conferenceGroup.state = null;
+    });
+
     test('it should play it by default on notification channel', function() {
       var playSpy = this.sinon.spy(MockAudio.prototype, 'play');
       sendNotification();
@@ -202,11 +208,20 @@ suite('system/NotificationScreen >', function() {
       assert.ok(playSpy.calledOnce);
     });
 
+    test('if active multicall it should use telephony channel', function() {
+      var playSpy = this.sinon.spy(MockAudio.prototype, 'play');
+      MockNavigatorMozTelephony.conferenceGroup.state = 'connected';
+      sendNotification();
+      var mockAudio = MockAudio.instances[0];
+      assert.equal(mockAudio.mozAudioChannelType, 'telephony');
+      assert.ok(playSpy.calledOnce);
+    });
+
   });
 
   suite('updateNotificationIndicator >', function() {
     setup(function() {
-      NotificationScreen.updateNotificationIndicator(true);
+      NotificationScreen.updateNotificationIndicator();
     });
 
     test('should clear unread notifications after open tray', function() {
@@ -239,7 +254,15 @@ suite('system/NotificationScreen >', function() {
     });
 
     test('should change the read status', function() {
+      incrementNotications(1);
       assert.equal(document.body.getElementsByClassName('unread').length, 1);
+    });
+
+    test('should not increment if the tray is open', function() {
+      UtilityTray.shown = true;
+      incrementNotications(1);
+      assert.equal(document.body.getElementsByClassName('unread').length, 0);
+      UtilityTray.shown = false;
     });
   });
 

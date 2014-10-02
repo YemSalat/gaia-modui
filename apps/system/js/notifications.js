@@ -54,7 +54,7 @@ var NotificationScreen = {
     this.lockScreenContainer =
       document.getElementById('notifications-lockscreen-container');
     this.toaster = document.getElementById('notification-toaster');
-    this.ambientIndicator = document.getElementById('notifications-indicator');
+    this.ambientIndicator = document.getElementById('ambient-indicator');
     this.toasterIcon = document.getElementById('toaster-icon');
     this.toasterTitle = document.getElementById('toaster-title');
     this.toasterDetail = document.getElementById('toaster-detail');
@@ -183,11 +183,6 @@ var NotificationScreen = {
     }
   },
 
-  hideNotificationIndicator: function ns_hideNotificationIndicator() {
-    this.toaster.className = '';
-    this.unreadNotifications = 0;
-  },
-
   // TODO: Remove this when we ditch mozNotification (bug 952453)
   clearDesktopNotifications: function ns_handleAppopen(evt) {
     var manifestURL = evt.detail.manifestURL,
@@ -248,9 +243,18 @@ var NotificationScreen = {
       return;
     }
 
-    var touchDiffY = Math.abs(evt.touches[0].pageY - this._touchStartY);
+    var touchDiffY = evt.touches[0].pageY - this._touchStartY;
+
+    // The notification being touched is the toast
+    if (this._notification.classList.contains('displayed')) {
+      this._touching = false;
+      if (touchDiffY < 0)
+        this.closeToast();
+      return;
+    }
+
     if (evt.touches.length !== 1 ||
-        (this._isTap && touchDiffY >= this.SCROLL_THRESHOLD)) {
+        (this._isTap && Math.abs(touchDiffY) >= this.SCROLL_THRESHOLD)) {
       this._touching = false;
       this.cancelSwipe();
       return;
@@ -337,15 +341,14 @@ var NotificationScreen = {
     }
 
     if (node == this.toaster) {
-      this.toaster.classList.remove('displayed');
+      this.closeToast();
     } else {
       UtilityTray.hide();
     }
   },
 
   updateTimestamps: function ns_updateTimestamps() {
-    var timestamps =
-      this.notificationsContainer.getElementsByClassName('timestamp');
+    var timestamps = document.getElementsByClassName('timestamp');
     for (var i = 0, l = timestamps.length; i < l; i++) {
       timestamps[i].textContent =
         this.prettyDate(new Date(timestamps[i].dataset.timestamp));
@@ -398,7 +401,7 @@ var NotificationScreen = {
       this.container.querySelector('.priority-notifications') :
       this.container.querySelector('.other-notifications');
 
-    this.unreadNotifications++;
+    this.addUnreadNotification();
 
     var notificationNode = document.createElement('div');
     notificationNode.classList.add('notification');
@@ -501,16 +504,6 @@ var NotificationScreen = {
     if (notify) {
       this.updateToaster(detail, type, dir);
       if (this.lockscreenPreview || !window.System.locked) {
-
-        this.ambientIndicator.addEventListener('animationend',
-          function onIndicatorAnimation() {
-            this.updateNotificationIndicator(true);
-            this.ambientIndicator.removeEventListener(
-              'animationend',
-              onIndicatorAnimation
-            );
-        }.bind(this));
-
         this.toaster.classList.add('displayed');
 
         if (this._toasterTimeout) {
@@ -518,12 +511,10 @@ var NotificationScreen = {
         }
 
         this._toasterTimeout = setTimeout((function() {
-          this.toaster.classList.remove('displayed');
+          this.closeToast();
           this._toasterTimeout = null;
         }).bind(this), this.TOASTER_TIMEOUT);
       }
-    } else {
-      this.updateNotificationIndicator(true);
     }
 
     // Adding it to the lockscreen if locked and the privacy setting
@@ -580,12 +571,14 @@ var NotificationScreen = {
         var ringtonePlayer = new Audio();
         var telephony = window.navigator.mozTelephony;
         var isOnCall = telephony && telephony.calls.some(function(call) {
-            return (call.state == 'connected');
+          return (call.state == 'connected');
         });
+        var isOnMultiCall = telephony && telephony.conferenceGroup &&
+          telephony.conferenceGroup.state === 'connected';
 
         ringtonePlayer.src = this._sound;
 
-        if (isOnCall) {
+        if (isOnCall || isOnMultiCall) {
           ringtonePlayer.mozAudioChannelType = 'telephony';
           ringtonePlayer.volume = 0.3;
         } else {
@@ -655,6 +648,40 @@ var NotificationScreen = {
     notification.style.transform = '';
   },
 
+  addUnreadNotification: function ns_addUnreadNotification() {
+    if (UtilityTray.shown) {
+      return;
+    }
+
+    this.unreadNotifications++;
+    this.updateNotificationIndicator();
+  },
+
+  removeUnreadNotification: function ns_removeUnreadNotification() {
+    this.unreadNotifications--;
+    var isNegative = this.unreadNotifications < 0;
+    this.unreadNotifications = isNegative ? 0 : this.unreadNotifications;
+    this.updateNotificationIndicator();
+  },
+
+  hideNotificationIndicator: function ns_hideNotificationIndicator() {
+    this.unreadNotifications = 0;
+    this.updateNotificationIndicator();
+  },
+
+  updateNotificationIndicator: function ns_updateNotificationIndicator() {
+    if (this.unreadNotifications) {
+      var indicatorSize = getIndicatorSize(this.unreadNotifications);
+      this.ambientIndicator.className = 'unread ' + indicatorSize;
+    } else {
+      this.ambientIndicator.classList.remove('unread');
+    }
+  },
+
+  closeToast: function ns_closeToast() {
+    this.toaster.classList.remove('displayed');
+  },
+
   closeNotification: function ns_closeNotification(notificationNode) {
     var notificationId = notificationNode.dataset.notificationId;
     this.removeNotification(notificationId);
@@ -704,7 +731,7 @@ var NotificationScreen = {
       this.removeLockScreenNotification(notificationId);
     }).bind(this), 400);
 
-    this.updateNotificationIndicator();
+    this.removeUnreadNotification();
     if (!this.container.querySelector('.notification')) {
       // no notifications left
       this.clearAllButton.disabled = true;
@@ -735,19 +762,9 @@ var NotificationScreen = {
     window.lockScreenNotifications.adjustContainerVisualHints();
   },
 
-  updateNotificationIndicator: function ns_updateNotificationIndicator(unread) {
-    var indicatorSize = getIndicatorSize(this.unreadNotifications);
-
-    if (unread) {
-      this.toaster.classList.add('unread');
-      this.ambientIndicator.className = indicatorSize;
-    }
-  },
-
   incExternalNotifications: function ns_incExternalNotifications() {
     this.externalNotificationsCount++;
-    this.unreadNotifications++;
-    this.updateNotificationIndicator(true);
+    this.addUnreadNotification();
   },
 
   decExternalNotifications: function ns_decExternalNotifications() {
@@ -755,7 +772,7 @@ var NotificationScreen = {
     if (this.externalNotificationsCount < 0) {
       this.externalNotificationsCount = 0;
     }
-    this.updateNotificationIndicator();
+    this.removeUnreadNotification();
   }
 
 };

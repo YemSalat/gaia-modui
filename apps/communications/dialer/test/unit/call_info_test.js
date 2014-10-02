@@ -77,6 +77,15 @@ suite('Call Info', function(argument) {
     CallInfo.show(fakeNumber, fakeDate, fakeType, fakeStatus);
   };
 
+  var dispatchCloseViewEvent = function() {
+    var evt = new CustomEvent('action', {
+      detail: {
+        type: 'back'
+      }
+    });
+    document.getElementById('call-info-gaia-header').dispatchEvent(evt);
+  };
+
   suiteSetup(function() {
     realL10n = navigator.mozL10n;
     navigator.mozL10n = MockL10n;
@@ -273,12 +282,7 @@ suite('Call Info', function(argument) {
     });
 
     test('tapping the close button closes the view', function() {
-      var evt = new CustomEvent('action', {
-        detail: {
-          type: 'back'
-        }
-      });
-      document.getElementById('call-info-gaia-header').dispatchEvent(evt);
+      dispatchCloseViewEvent();
       assert.isTrue(document.getElementById('call-info-view').hidden);
     });
 
@@ -410,7 +414,8 @@ suite('Call Info', function(argument) {
     test('displays calls in the proper order', function() {
       var durations = document.getElementsByClassName('cd__duration');
       for (var i=1; i < durations.length; i++) {
-        assert.equal(durations[i].textContent, groupReturn.calls[i].duration);
+        sinon.assert.calledWith(Utils.prettyDuration, durations[i],
+          groupReturn.calls[i].duration, 'callDurationTextFormat');
       }
     });
 
@@ -556,4 +561,41 @@ suite('Call Info', function(argument) {
     });
   });
 
+  suite('Updates after call log db updates', function() {
+    teardown(function() {
+      groupReturn.calls = [];
+    });
+
+    test('adds a new call', function() {
+      groupReturn.calls = [
+        {date: 123, duration: 0}
+      ];
+      var createOrUpdateEvt = new CustomEvent('CallLogDbNewCall',
+        {detail: {group: groupReturn}});
+
+      var rows = document.getElementsByClassName('call-duration');
+      assert.equal(rows.length, 0);
+
+      window.dispatchEvent(createOrUpdateEvt);
+      assert.equal(rows.length, 1);
+    });
+
+    test('does not listen when the view is closed', function() {
+      dispatchCloseViewEvent();
+
+      groupReturn.calls = [
+        {date: 123, duration: 0},
+        {date: 123, duration: 0}
+      ];
+
+      var createOrUpdateEvt = new CustomEvent('CallLogDbNewCall',
+        {detail: {group: groupReturn}});
+
+      var rows = document.getElementsByClassName('call-duration');
+      assert.equal(rows.length, 0);
+
+      window.dispatchEvent(createOrUpdateEvt);
+      assert.equal(rows.length, 0);
+    });
+  });
 });

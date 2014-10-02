@@ -10,6 +10,7 @@
 /* global Normalizer */
 /* global utils */
 /* global ICEStore */
+/* global ICEData */
 
 var contacts = window.contacts || {};
 contacts.List = (function() {
@@ -402,12 +403,17 @@ contacts.List = (function() {
     }
 
     var letterAbbr = document.createElement('abbr');
+    var letterAbbrId = 'contacts-listed-abbr-' + group;
     letterAbbr.setAttribute('title', 'Contacts listed ' + group);
+    letterAbbr.setAttribute('aria-hidden', true);
+    letterAbbr.id = letterAbbrId;
     letterAbbr.textContent = letter;
+    title.setAttribute('aria-labelledby', letterAbbrId);
     title.appendChild(letterAbbr);
 
     var contactsContainer = document.createElement('ol');
     contactsContainer.setAttribute('role', 'listbox');
+    contactsContainer.setAttribute('aria-labelledby', letterAbbrId);
     contactsContainer.id = 'contacts-list-' + group;
     contactsContainer.dataset.group = group;
     letteredSection.appendChild(title);
@@ -566,6 +572,7 @@ contacts.List = (function() {
       order = getStringToBeOrdered(contact);
       group = getGroupNameByOrderString(order);
     }
+    ph.setAttribute('role', 'option');
     ph.dataset.group = group;
 
     // NOTE: We want the group value above to be based on the raw data so that
@@ -825,7 +832,9 @@ contacts.List = (function() {
    * Check if we have ICE contacts information
    */
   function loadICE() {
-    LazyLoader.load(['/shared/js/contacts/utilities/ice_store.js'],
+    LazyLoader.load([
+      '/contacts/js/utilities/ice_data.js',
+      '/shared/js/contacts/utilities/ice_store.js'],
      function() {
       ICEStore.getContacts().then(displayICEIndicator);
       ICEStore.onChange(function() {
@@ -835,15 +844,17 @@ contacts.List = (function() {
   }
 
   function displayICEIndicator(ids) {
+    if (!iceGroup) {
+      buildICEGroup();
+    }
+
     if (!ids || ids.length === 0) {
       hideICEGroup();
       return;
     }
 
     iceContacts = ids;
-    if (iceGroup === null) {
-      buildICEGroup();
-    }
+    
     showICEGroup();
   }
 
@@ -893,6 +904,14 @@ contacts.List = (function() {
     elem.appendChild(p);
 
     iceGroup.addEventListener('click', onICEGroupClicked);
+
+    // Set a listener in case ice contacts are modified
+    // and we need to remove the group.
+    ICEData.listenForChanges(function(data) {
+      if (!Array.isArray(data) || data.length === 0) {
+        hideICEGroup();
+      }
+    });
   }
 
   function onICEGroupClicked() {
@@ -1000,6 +1019,7 @@ contacts.List = (function() {
 
     if (img) {
       delete img.dataset.group;
+      img.style.backgroundPosition = img.dataset.backgroundPosition || '';
       setImageURL(img, photo, asClone);
       return;
     }
@@ -1021,6 +1041,7 @@ contacts.List = (function() {
       return;
     }
     photoTemplate = document.createElement('aside');
+    photoTemplate.setAttribute('aria-hidden', true);
     photoTemplate.className = 'pack-end';
     var img = document.createElement('span');
     img.dataset.type = 'img';
@@ -1036,6 +1057,8 @@ contacts.List = (function() {
     if (!img) {
       var figure = photoTemplate.cloneNode(true);
       img = figure.children[0];
+
+      img.dataset.backgroundPosition = img.style.backgroundPosition;
 
       var posH = ['left','center','right'];
       var posV = ['top','center','bottom'];

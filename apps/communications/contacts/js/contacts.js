@@ -816,7 +816,7 @@ var Contacts = (function() {
                 contactsList.refresh(enrichedContact || currentContact,
                                      checkPendingChanges, event.reason);
               }
-              notifyContactChanged(event.contactID);
+              notifyContactChanged(event.contactID, event.reason);
           });
         } else {
           refreshContactInList(event.contactID);
@@ -834,7 +834,7 @@ var Contacts = (function() {
         contactsList.remove(event.contactID, event.reason);
         currentContact = {};
         checkPendingChanges(event.contactID);
-        notifyContactChanged(event.contactID);
+        notifyContactChanged(event.contactID, event.reason);
         break;
     }
   };
@@ -844,17 +844,18 @@ var Contacts = (function() {
   function refreshContactInList(id) {
     contactsList.refresh(id, function() {
       notifyContactChanged(id);
-      checkPendingChanges();
+      checkPendingChanges(id);
     });
   }
 
   // Send a custom event when we know that a contact changed and
   // the contact list was updated.
   // Used internally in places where the contact list is a reference
-  function notifyContactChanged(id) {
+  function notifyContactChanged(id, reason) {
     document.dispatchEvent(new CustomEvent('contactChanged', {
       detail: {
-        contactID: id
+        contactID: id,
+        reason: reason
       }
     }));
   }
