@@ -205,7 +205,7 @@ make test-integration OOP=1
 #### Where to find documentation
   - [Node.js](http://nodejs.org)
   - [MDN: for high level overview](https://developer.mozilla.org/en-US/docs/Marionette/Marionette_JavaScript_Tools)
-  - [mocha: which is wrapped by marionette-js-runner](http://visionmedia.github.io/mocha/)
+  - [mocha: which is wrapped by marionette-js-runner](http://mochajs.org/)
   - [marionette-js-runner: for the test framework](https://github.com/mozilla-b2g/marionette-js-runner)
   - [marionette-client: for anything to do with client.X](http://lightsofapollo.github.io/marionette_js_client/api-docs/classes/Marionette.Client.html)
 
